@@ -1,0 +1,7 @@
+func main()
+{
+	var x = 9;
+	x *= x + 1;
+	print("Hello, world!\n");
+	print(x);
+}
