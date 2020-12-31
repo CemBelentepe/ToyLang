@@ -143,3 +143,29 @@ public:
 
 	void accept(StmtVisitor* visitor) override;
 };
+
+class StmtBlock : public Stmt
+{
+public:
+	std::vector<std::unique_ptr<Stmt>> stmts;
+
+	StmtBlock(std::vector<std::unique_ptr<Stmt>> stmts)
+		: stmts(std::move(stmts)){}
+
+	void accept(StmtVisitor* visitor) override;
+};
+
+class StmtIf : public Stmt
+{
+public:
+	std::unique_ptr<Expr> cond;
+	Token paren;
+	std::unique_ptr<Stmt> then;
+	std::unique_ptr<Stmt> els;
+
+	StmtIf(std::unique_ptr<Expr> cond, Token paren, std::unique_ptr<Stmt> then,	std::unique_ptr<Stmt> els)
+		: cond(std::move(cond)), paren(paren), then(std::move(then)), els(std::move(els))
+	{}
+
+	void accept(StmtVisitor* visitor) override;
+};

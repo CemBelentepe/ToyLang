@@ -20,11 +20,11 @@ void Interpreter::run()
 	globals = new Enviroment();
 	enviroment = globals;
 
-	enviroment->define("print", Value(new NativePrint()));
+	enviroment->define("print", Value(std::make_shared<NativePrint>()));
 
 	for (auto& stmt : root)
 		stmt->accept(this);
-	enviroment->getVar("main").data.valCallable->call(this, {});
+	std::get<std::shared_ptr<Callable>>(enviroment->getVar("main").data)->call(this, {});
 
 	delete globals;
 }
@@ -38,7 +38,7 @@ Value Interpreter::visit(ExprBinary* expr)
 		switch (expr->op.type)
 		{
 		case TokenType::AND:
-			if (a.data.valBool)
+			if (std::get<bool>(a.data))
 			{
 				Value b = expr->rhs->accept(this);
 				if (b.tag == TypeTag::BOOL)
@@ -50,7 +50,7 @@ Value Interpreter::visit(ExprBinary* expr)
 			}
 			break;
 		case TokenType::OR:
-			if (a.data.valBool)
+			if (std::get<bool>(a.data))
 				return true;
 			Value b = expr->rhs->accept(this);
 			if (b.tag == TypeTag::BOOL)
@@ -65,19 +65,19 @@ Value Interpreter::visit(ExprBinary* expr)
 			switch (expr->op.type)
 			{
 			case TokenType::PLUS:
-				return a.data.valNumber + b.data.valNumber;
+				return std::get<double>(a.data) + std::get<double>(b.data);
 			case TokenType::MINUS:
-				return a.data.valNumber - b.data.valNumber;
+				return std::get<double>(a.data) - std::get<double>(b.data);
 			case TokenType::STAR:
-				return a.data.valNumber * b.data.valNumber;
+				return std::get<double>(a.data) * std::get<double>(b.data);
 			case TokenType::SLASH:
-				return a.data.valNumber / b.data.valNumber;
+				return std::get<double>(a.data) / std::get<double>(b.data);
 			}
 		}
 		else if (a.tag == TypeTag::STRING && b.tag == TypeTag::STRING)
 		{
 			std::stringstream ss;
-			ss << a.data.valString << b.data.valString;;
+			ss << std::get<char*>(a.data) << std::get<char*>(b.data);
 			return ss.str();
 		}
 	}
@@ -90,7 +90,7 @@ Value Interpreter::visit(ExprUnary* expr)
 	Value a = expr->rhs->accept(this);
 	if (a.tag == TypeTag::NUMBER)
 	{
-		return -a.data.valNumber;
+		return -std::get<double>(a.data);
 	}
 
 	return runtimeTypeError(expr->op);
@@ -105,24 +105,24 @@ Value Interpreter::visit(ExprVariableSet* expr)
 {
 	Value val = expr->setVal->accept(this);
 	std::string name = expr->name.getLexeme();
-	if (expr->op.type != TokenType::EQUAL) 
+	if (expr->op.type != TokenType::EQUAL)
 	{
 		Value orig = enviroment->getVar(name);
-		if (val.tag == TypeTag::NUMBER && orig.tag == TypeTag::NUMBER) 
+		if (val.tag == TypeTag::NUMBER && orig.tag == TypeTag::NUMBER)
 		{
 			switch (expr->op.type)
 			{
 			case TokenType::PLUS_EQUAL:
-				val.data.valNumber = orig.data.valNumber + val.data.valNumber;
+				val.data = std::get<double>(orig.data) + std::get<double>(val.data);
 				break;
 			case TokenType::MINUS_EQUAL:
-				val.data.valNumber = orig.data.valNumber - val.data.valNumber;
+				val.data = std::get<double>(orig.data) - std::get<double>(val.data);
 				break;
 			case TokenType::STAR_EQUAL:
-				val.data.valNumber = orig.data.valNumber * val.data.valNumber;
+				val.data = std::get<double>(orig.data) * std::get<double>(val.data);
 				break;
 			case TokenType::SLASH_EQUAL:
-				val.data.valNumber = orig.data.valNumber / val.data.valNumber;
+				val.data = std::get<double>(orig.data) / std::get<double>(val.data);
 				break;
 			}
 		}
@@ -143,14 +143,14 @@ Value Interpreter::visit(ExprCall* expr)
 		std::cout << "[ERROR] Invalid function call at line: " << expr->paren.line << std::endl;
 		return Value();
 	}
-	else if (func.data.valCallable->arity() == expr->args.size())
+	else if (std::get<std::shared_ptr<Callable>>(func.data)->arity() == expr->args.size())
 	{
 		std::vector<Value> args;
 		for (auto& a : expr->args)
 		{
 			args.push_back(a->accept(this));
 		}
-		return func.data.valCallable->call(this, args);
+		return std::get<std::shared_ptr<Callable>>(func.data)->call(this, args);
 	}
 	else
 	{
@@ -172,11 +172,39 @@ void Interpreter::visit(StmtExpr* stmt)
 
 void Interpreter::visit(StmtFunction* stmt)
 {
-	Value funcVal(new ToyFunction(stmt));
+	Value funcVal(std::make_shared<ToyFunction>(stmt));
 	enviroment->define(stmt->name, funcVal);
 }
 
 void Interpreter::visit(StmtVarDecl* stmt)
 {
 	enviroment->define(stmt->name, stmt->initVal->accept(this));
+}
+
+void Interpreter::visit(StmtBlock* stmt)
+{
+	Enviroment* env = this->enviroment;
+	this->enviroment = new Enviroment(env);
+
+	for (auto& s : stmt->stmts)
+		s->accept(this);
+
+	delete this->enviroment;
+	this->enviroment = env;
+}
+
+void Interpreter::visit(StmtIf* stmt)
+{
+	Value res = stmt->cond->accept(this);
+
+	if (res.tag == TypeTag::BOOL) {
+		if (std::get<bool>(res.data))
+			stmt->then->accept(this);
+		else if (stmt->els)
+			stmt->els->accept(this);
+	}
+	else
+	{
+		std::cout << "Invalid data type for if statement at line: " << stmt->paren.line << std::endl;
+	}
 }

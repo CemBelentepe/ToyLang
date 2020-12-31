@@ -69,7 +69,7 @@ std::unique_ptr<Stmt> Parser::varDecl()
 	{
 		init = std::move(parseExpr());
 	}
-	
+
 	consume(TokenType::SEMI_COLON, "Expect ';' after variable decleration.");
 	return std::make_unique<StmtVarDecl>(name, std::move(init));
 }
@@ -81,12 +81,47 @@ std::unique_ptr<Stmt> Parser::statement()
 		advance();
 		return std::move(varDecl());
 	}
+	else if (peek().type == TokenType::IF)
+	{
+		advance();
+		return std::move(ifStatement());
+	}
+	else if (peek().type == TokenType::OPEN_BRACE)
+	{
+		advance();
+		return std::move(block());
+	}
 	else
 	{
 		auto expr = parseExpr();
 		consume(TokenType::SEMI_COLON, "Expect ';' after an expression statement.");
 		return std::unique_ptr<Stmt>(new StmtExpr(std::move(expr)));
 	}
+}
+
+std::unique_ptr<Stmt> Parser::block()
+{
+	std::vector<std::unique_ptr<Stmt>> stmts;
+	while (!match(TokenType::CLOSE_BRACE))
+	{
+		stmts.push_back(statement());
+	}
+	return std::make_unique<StmtBlock>(std::move(stmts));
+}
+
+std::unique_ptr<Stmt> Parser::ifStatement()
+{
+	consume(TokenType::OPEN_PAREN, "Expect '(' after 'if'.");
+	Token paren = consumed();
+	std::unique_ptr<Expr> cond = parseExpr();
+	consume(TokenType::CLOSE_PAREN, "Expect ')' after if condition.");
+
+	std::unique_ptr<Stmt> then = statement();
+	std::unique_ptr<Stmt> els = nullptr;
+	if (match(TokenType::ELSE))
+		els = statement();
+
+	return std::make_unique<StmtIf>(std::move(cond), paren, std::move(then), std::move(els));
 }
 
 std::unique_ptr<Expr> Parser::parseExpr()

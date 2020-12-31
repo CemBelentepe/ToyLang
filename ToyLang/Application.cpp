@@ -9,6 +9,9 @@
 #include "Parser.h"
 #include "Interpreter.h"
 
+// TODO: Add logic and comparison binaries!!
+// Left: return and struct or class
+
 void run(const char* filePath)
 {
     std::ifstream file(filePath);

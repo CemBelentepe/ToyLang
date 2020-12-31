@@ -22,6 +22,8 @@ public:
     std::unique_ptr<Stmt> varDecl();
 
     std::unique_ptr<Stmt> statement();
+    std::unique_ptr<Stmt> block();
+    std::unique_ptr<Stmt> ifStatement();
 
     std::unique_ptr<Expr> parseExpr();
     std::unique_ptr<Expr> assignment();

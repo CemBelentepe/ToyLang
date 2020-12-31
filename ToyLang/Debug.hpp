@@ -96,7 +96,7 @@ public:
 			stmt->accept(this);
 		}
 
-		std::cout << "END FUNC" << std::endl;
+		std::cout << "ENDFUNC" << std::endl;
 	}
 
 	void visit(StmtVarDecl* stmt) override
@@ -108,5 +108,29 @@ public:
 			stmt->initVal->accept(this);
 		}
 		std::cout << std::endl;
+	}
+
+	void visit(StmtBlock* stmt) override
+	{
+		std::cout << "BLOCK\n";
+		for (auto& stmt : stmt->stmts)
+		{
+			stmt->accept(this);
+		}
+		std::cout << "ENDBLOCK\n";
+	}
+
+	void visit(StmtIf* stmt) override
+	{
+		std::cout << "IF: ";
+		stmt->cond->accept(this);
+		std::cout << "\nTHEN:\n";
+		stmt->then->accept(this);
+		if (stmt->els)
+		{
+			std::cout << "ELSE:\n";
+			stmt->els->accept(this);
+		}
+		std::cout << "ENDIF\n";
 	}
 };

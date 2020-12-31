@@ -45,3 +45,13 @@ void StmtVarDecl::accept(StmtVisitor* visitor)
 {
     return visitor->visit(this);
 }
+
+void StmtBlock::accept(StmtVisitor* visitor)
+{
+    return visitor->visit(this);
+}
+
+void StmtIf::accept(StmtVisitor* visitor)
+{
+    return visitor->visit(this);
+}

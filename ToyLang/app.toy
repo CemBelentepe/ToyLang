@@ -1,7 +1,12 @@
 func main()
 {
-	var x = 9;
-	x *= x + 1;
-	print("Hello, world!\n");
-	print(x);
+	var x = true;
+	if(x)
+	{
+		print("x is true\n");
+		print("or is it?\n");
+	}
+	else
+		print("x is false\n");
+
 }

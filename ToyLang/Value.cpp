@@ -2,38 +2,30 @@
 #include "Callable.hpp"
 
 Value::Value()
-	:tag(TypeTag::ERR), data{ 0 }
+	:tag(TypeTag::ERR), data(nullptr)
 {}
 
 Value::Value(bool val)
-	: tag(TypeTag::BOOL)
+	: tag(TypeTag::BOOL), data(val)
 {
-	data.valBool = val;
 }
 
 Value::Value(double val)
-	: tag(TypeTag::NUMBER)
+	: tag(TypeTag::NUMBER), data(val)
 {
-	data.valNumber = val;
 }
 
 Value::Value(std::string val)
 	: tag(TypeTag::STRING)
 {
-	data.valString = new char[val.size() + 1];
-	val.copy(data.valString, val.size(), 0);
-	data.valString[val.size()] = 0;
+	data = new char[val.size() + 1];
+	val.copy(std::get<char*>(data), val.size(), 0);
+	std::get<char*>(data)[val.size()] = 0;
 }
 
-Value::Value(Callable* val)
-	:tag(TypeTag::CALLABLE)
+Value::Value(std::shared_ptr<Callable> val)
+	:tag(TypeTag::CALLABLE), data(val)
 {
-	data.valCallable = val;
-}
-
-Value::~Value()
-{
-	// Why??
 }
 
 void Value::print() const
@@ -41,13 +33,15 @@ void Value::print() const
 	switch (tag)
 	{
 	case TypeTag::BOOL:
-		std::cout << (data.valBool ? "true" : "false");
+		std::cout << (std::get<bool>(data) ? "true" : "false");
 		break;
 	case TypeTag::NUMBER:
-		std::cout << data.valNumber;
+		std::cout << std::get<double>(data);
 		break;
 	case TypeTag::STRING:
-		std::cout << '"' << data.valString << '"';
+		std::cout << '"' << std::get<char*>(data) << '"';
+		break;
+	default:
 		break;
 	}
 }
@@ -57,13 +51,13 @@ std::ostream& operator<<(std::ostream& os, const Value& val)
 	switch (val.tag)
 	{
 	case TypeTag::BOOL:
-		os << (val.data.valBool ? "true" : "false");
+		std::cout << (std::get<bool>(val.data) ? "true" : "false");
 		break;
 	case TypeTag::NUMBER:
-		os << val.data.valNumber;
+		std::cout << std::get<double>(val.data);
 		break;
 	case TypeTag::STRING:
-		os << val.data.valString;
+		os << std::get<char*>(val.data);
 		break;
 	default:
 		break;

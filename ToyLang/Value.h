@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <iostream>
+#include <variant>
 
 class Callable;
 enum class TypeTag
@@ -16,20 +17,14 @@ class Value
 {
 public:
 	TypeTag tag;
-	union Data
-	{
-		bool valBool;
-		double valNumber;
-		char* valString;
-		Callable* valCallable;
-	} data;
+
+	std::variant<bool, double, char*, std::shared_ptr<Callable>> data;
 
 	Value();
 	Value(bool val);
 	Value(double val);
 	Value(std::string val);
-	Value(Callable* val);
-	~Value();
+	Value(std::shared_ptr<Callable> val);
 
 	void print() const;
 
