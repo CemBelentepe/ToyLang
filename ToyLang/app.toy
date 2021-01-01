@@ -1,16 +1,10 @@
 func main()
 {
 	var t0 = clock();
-	while(true)
-	{
-		var t1 = clock();
-		var dt = t1 - t0;
-		if(dt > 0.5)
-		{
-			println(t1);
-			t0 = t1;
-		}
-	}
+	println(fibb(20));
+	print("Time elapsed: ");
+	print(clock() - start);
+	print(" sec\n");
 }
 
 func fibb(x)
