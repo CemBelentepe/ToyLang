@@ -133,4 +133,13 @@ public:
 		}
 		std::cout << "ENDIF\n";
 	}
+
+	void visit(StmtWhile* stmt) override
+	{
+		std::cout << "While: ";
+		stmt->cond->accept(this);
+		std::cout << "\nTHEN:\n";
+		stmt->then->accept(this);
+		std::cout << "ENDWHILE\n";
+	}
 };

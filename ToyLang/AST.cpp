@@ -55,3 +55,8 @@ void StmtIf::accept(StmtVisitor* visitor)
 {
     return visitor->visit(this);
 }
+
+void StmtWhile::accept(StmtVisitor* visitor)
+{
+    return visitor->visit(this);
+}

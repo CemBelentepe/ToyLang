@@ -1,3 +1,5 @@
+#define DEBUG_TREE true
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -9,8 +11,7 @@
 #include "Parser.h"
 #include "Interpreter.h"
 
-// TODO: Add logic and comparison binaries!!
-// Left: return and struct or class
+// TODO: return and struct or class
 
 void run(const char* filePath)
 {
@@ -38,8 +39,10 @@ void run(const char* filePath)
     for (auto& u_ptr : root)
         root_ref.push_back(u_ptr.get());
 
-    // AstDebugger astDebugger(root_ref);
-    // astDebugger.debug();
+#if DEBUG_TREE
+    AstDebugger astDebugger(root_ref);
+    astDebugger.debug();
+#endif
 
     Interpreter interpreter(root_ref);
     interpreter.run();

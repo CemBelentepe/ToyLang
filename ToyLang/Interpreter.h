@@ -27,5 +27,6 @@ public:
 	void visit(StmtVarDecl* stmt);
 	void visit(StmtBlock* stmt);
 	void visit(StmtIf* stmt);
+	void visit(StmtWhile* stmt);
 };
 

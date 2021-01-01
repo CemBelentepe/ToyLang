@@ -24,9 +24,15 @@ public:
     std::unique_ptr<Stmt> statement();
     std::unique_ptr<Stmt> block();
     std::unique_ptr<Stmt> ifStatement();
+    std::unique_ptr<Stmt> whileStatement();
+    std::unique_ptr<Stmt> forStatement();
 
     std::unique_ptr<Expr> parseExpr();
     std::unique_ptr<Expr> assignment();
+    std::unique_ptr<Expr> logic_or();
+    std::unique_ptr<Expr> logic_and();
+    std::unique_ptr<Expr> equality();
+    std::unique_ptr<Expr> comparison();
     std::unique_ptr<Expr> addition();
     std::unique_ptr<Expr> multiplication();
     std::unique_ptr<Expr> unary();

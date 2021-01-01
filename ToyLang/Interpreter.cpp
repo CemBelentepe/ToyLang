@@ -33,7 +33,17 @@ Value Interpreter::visit(ExprBinary* expr)
 {
 	Value a = expr->lhs->accept(this);
 
-	if (a.tag == TypeTag::BOOL)
+	if (expr->op.type == TokenType::EQUAL_EQUAL)
+	{
+		Value b = expr->rhs->accept(this);
+		return a.data == b.data;
+	}
+	else if (expr->op.type == TokenType::BANG_EQUAL)
+	{
+		Value b = expr->rhs->accept(this);
+		return a.data != b.data;
+	}
+	else if (a.tag == TypeTag::BOOL)
 	{
 		switch (expr->op.type)
 		{
@@ -72,9 +82,17 @@ Value Interpreter::visit(ExprBinary* expr)
 				return std::get<double>(a.data) * std::get<double>(b.data);
 			case TokenType::SLASH:
 				return std::get<double>(a.data) / std::get<double>(b.data);
+			case TokenType::LESS:
+				return std::get<double>(a.data) < std::get<double>(b.data);
+			case TokenType::GREAT:
+				return std::get<double>(a.data) > std::get<double>(b.data);
+			case TokenType::LESS_EQUAL:
+				return std::get<double>(a.data) <= std::get<double>(b.data);
+			case TokenType::GREAT_EQUAL:
+				return std::get<double>(a.data) >= std::get<double>(b.data);
 			}
 		}
-		else if (a.tag == TypeTag::STRING && b.tag == TypeTag::STRING)
+		else if (a.tag == TypeTag::STRING && b.tag == TypeTag::STRING && expr->op.type == TokenType::PLUS)
 		{
 			std::stringstream ss;
 			ss << std::get<char*>(a.data) << std::get<char*>(b.data);
@@ -125,6 +143,12 @@ Value Interpreter::visit(ExprVariableSet* expr)
 				val.data = std::get<double>(orig.data) / std::get<double>(val.data);
 				break;
 			}
+		}
+		else if (val.tag == TypeTag::STRING && orig.tag == TypeTag::STRING)
+		{
+			std::stringstream ss;
+			ss << std::get<char*>(orig.data) << std::get<char*>(val.data);
+			val.data = ss.str().c_str();
 		}
 		else
 		{
@@ -178,7 +202,10 @@ void Interpreter::visit(StmtFunction* stmt)
 
 void Interpreter::visit(StmtVarDecl* stmt)
 {
-	enviroment->define(stmt->name, stmt->initVal->accept(this));
+	if (stmt->initVal.get())
+		enviroment->define(stmt->name, stmt->initVal->accept(this));
+	else
+		enviroment->define(stmt->name);
 }
 
 void Interpreter::visit(StmtBlock* stmt)
@@ -204,6 +231,22 @@ void Interpreter::visit(StmtIf* stmt)
 			stmt->els->accept(this);
 	}
 	else
+	{
+		std::cout << "Invalid data type for if statement at line: " << stmt->paren.line << std::endl;
+	}
+}
+
+void Interpreter::visit(StmtWhile* stmt)
+{
+	Value res = stmt->cond->accept(this);
+
+	while (res.tag == TypeTag::BOOL && std::get<bool>(res.data))
+	{
+		stmt->then->accept(this);
+		res = stmt->cond->accept(this);
+	}
+
+	if (res.tag != TypeTag::BOOL)
 	{
 		std::cout << "Invalid data type for if statement at line: " << stmt->paren.line << std::endl;
 	}

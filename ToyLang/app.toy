@@ -1,12 +1,11 @@
 func main()
 {
-	var x = true;
-	if(x)
-	{
-		print("x is true\n");
-		print("or is it?\n");
-	}
-	else
-		print("x is false\n");
+	for(var i = 0; i < 10; i+=1)
+		println(i);
+}
 
+func println(x)
+{
+	print(x);
+	print("\n");
 }

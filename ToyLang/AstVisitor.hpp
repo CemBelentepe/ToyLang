@@ -20,4 +20,5 @@ public:
     virtual void visit(StmtVarDecl* stmt) = 0;
     virtual void visit(StmtBlock* stmt) = 0;
     virtual void visit(StmtIf* stmt) = 0;
+    virtual void visit(StmtWhile* stmt) = 0;
 };
