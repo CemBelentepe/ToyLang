@@ -4,6 +4,8 @@
 #include "Interpreter.h"
 #include "Enviroment.hpp"
 
+#include <ctime>
+
 class Callable
 {
 public:
@@ -29,13 +31,21 @@ public:
 			interpreter->enviroment->define(func->params[i], args[i]);
 		}
 
-		for (auto& s : func->stmts)
-			s->accept(interpreter);
-		
+		Value ret;
+		try
+		{
+			for (auto& s : func->stmts)
+				s->accept(interpreter);
+		}
+		catch (Value val)
+		{
+			ret = val;
+		}
+
 		delete interpreter->enviroment;
 		interpreter->enviroment = env;
 
-		return Value(); // add return here!
+		return ret; // add return here!
 	}
 
 	int arity() override
@@ -56,5 +66,19 @@ public:
 	int arity()
 	{
 		return 1;
+	}
+};
+
+class NativeClock : public Callable
+{
+public:
+	Value call(Interpreter* interpreter, std::vector<Value> args) override
+	{
+		return (double)clock() / CLOCKS_PER_SEC;
+	}
+
+	int arity()
+	{
+		return 0;
 	}
 };

@@ -101,6 +101,13 @@ std::unique_ptr<Stmt> Parser::statement()
 		advance();
 		return std::move(block());
 	}
+	else if (peek().type == TokenType::RETURN)
+	{
+		advance();
+		auto expr = parseExpr();
+		consume(TokenType::SEMI_COLON, "Expect ';' after a return statement.");
+		return std::make_unique<StmtReturn>(std::move(expr));
+	}
 	else if (peek().type != TokenType::SEMI_COLON)
 	{
 		auto expr = parseExpr();

@@ -21,6 +21,7 @@ void Interpreter::run()
 	enviroment = globals;
 
 	enviroment->define("print", Value(std::make_shared<NativePrint>()));
+	enviroment->define("clock", Value(std::make_shared<NativeClock>()));
 
 	for (auto& stmt : root)
 		stmt->accept(this);
@@ -250,4 +251,9 @@ void Interpreter::visit(StmtWhile* stmt)
 	{
 		std::cout << "Invalid data type for if statement at line: " << stmt->paren.line << std::endl;
 	}
+}
+
+void Interpreter::visit(StmtReturn* stmt)
+{
+	throw stmt->expr->accept(this);
 }

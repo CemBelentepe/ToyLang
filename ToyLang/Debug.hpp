@@ -142,4 +142,11 @@ public:
 		stmt->then->accept(this);
 		std::cout << "ENDWHILE\n";
 	}
+	
+	void visit(StmtReturn* stmt) override
+	{
+		std::cout << "RETURN: ";
+		stmt->expr->accept(this);
+		std::cout << "\n";
+	}
 };
