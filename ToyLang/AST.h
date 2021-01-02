@@ -4,9 +4,11 @@
 #include "Value.h"
 
 #include <memory>
+#include <unordered_map>
 
 class ExprVisitor;
 class StmtVisitor;
+class ToyFunction;
 
 enum class ExprType
 {
@@ -192,6 +194,19 @@ public:
 	StmtReturn(std::unique_ptr<Expr> expr)
 		: expr(std::move(expr))
 	{}
+
+	void accept(StmtVisitor* visitor) override;
+};
+
+class StmtClass : public Stmt
+{
+public:
+	Token name;
+	std::vector<std::unique_ptr<StmtFunction>> methods;
+
+	StmtClass(Token name, std::vector<std::unique_ptr<StmtFunction>> methods)
+		: name(name), methods(std::move(methods))
+	{ }
 
 	void accept(StmtVisitor* visitor) override;
 };

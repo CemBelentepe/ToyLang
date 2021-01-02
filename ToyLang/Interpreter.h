@@ -29,5 +29,6 @@ public:
 	void visit(StmtIf* stmt);
 	void visit(StmtWhile* stmt);
 	void visit(StmtReturn* stmt);
+	void visit(StmtClass* stmt);
 };
 

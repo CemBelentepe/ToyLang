@@ -1,5 +1,6 @@
 #include "Value.h"
 #include "Callable.hpp"
+#include "ToyClass.h"
 
 Value::Value()
 	:tag(TypeTag::ERR), data(nullptr)
@@ -28,22 +29,14 @@ Value::Value(std::shared_ptr<Callable> val)
 {
 }
 
+Value::Value(std::shared_ptr<ToyInstance> val)
+	: tag(TypeTag::INSTANCE), data(val)
+{
+}
+
 void Value::print() const
 {
-	switch (tag)
-	{
-	case TypeTag::BOOL:
-		std::cout << (std::get<bool>(data) ? "true" : "false");
-		break;
-	case TypeTag::NUMBER:
-		std::cout << std::get<double>(data);
-		break;
-	case TypeTag::STRING:
-		std::cout << '"' << std::get<char*>(data) << '"';
-		break;
-	default:
-		break;
-	}
+	std::cout << *this;
 }
 
 std::ostream& operator<<(std::ostream& os, const Value& val)
@@ -58,6 +51,12 @@ std::ostream& operator<<(std::ostream& os, const Value& val)
 		break;
 	case TypeTag::STRING:
 		os << std::get<char*>(val.data);
+		break;
+	case TypeTag::CALLABLE:
+		os << std::get<std::shared_ptr<Callable>>(val.data)->name();
+		break;
+	case TypeTag::INSTANCE:
+		os << std::get<std::shared_ptr<ToyInstance>>(val.data)->klass->name() << " instance";
 		break;
 	default:
 		break;

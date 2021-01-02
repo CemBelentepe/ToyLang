@@ -4,6 +4,7 @@
 
 #include "Enviroment.hpp"
 #include "Callable.hpp"
+#include "ToyClass.h"
 
 Value Interpreter::runtimeTypeError(Token errToken)
 {
@@ -256,4 +257,11 @@ void Interpreter::visit(StmtWhile* stmt)
 void Interpreter::visit(StmtReturn* stmt)
 {
 	throw stmt->expr->accept(this);
+}
+
+void Interpreter::visit(StmtClass* stmt)
+{
+	enviroment->define(stmt->name, Value(std::make_shared<ToyClass>(stmt)));
+	for (auto& mem : stmt->methods)
+		mem->accept(this);
 }

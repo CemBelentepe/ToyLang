@@ -1,4 +1,4 @@
-#define DEBUG_TREE false
+#define DEBUG_TREE true
 
 #include <iostream>
 #include <fstream>

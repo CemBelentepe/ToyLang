@@ -12,6 +12,7 @@ public:
 	virtual ~Callable() = default;
 	virtual Value call(Interpreter* interpreter, std::vector<Value> args) = 0;
 	virtual int arity() = 0;
+	virtual std::string name() = 0;
 };
 
 class ToyFunction : public Callable
@@ -52,6 +53,11 @@ public:
 	{
 		return func->params.size();
 	}
+
+	std::string name() override
+	{
+		return func->name.getLexeme();
+	}
 };
 
 class NativePrint : public Callable
@@ -67,6 +73,11 @@ public:
 	{
 		return 1;
 	}
+
+	std::string name() override
+	{
+		return "print";
+	}
 };
 
 class NativeClock : public Callable
@@ -80,5 +91,10 @@ public:
 	int arity()
 	{
 		return 0;
+	}
+
+	std::string name() override
+	{
+		return "clock";
 	}
 };

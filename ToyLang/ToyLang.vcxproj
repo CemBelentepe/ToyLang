@@ -148,6 +148,7 @@
     <ClCompile Include="Interpreter.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="Scanner.cpp" />
+    <ClCompile Include="ToyClass.cpp" />
     <ClCompile Include="Value.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +160,7 @@
     <ClInclude Include="Interpreter.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="Scanner.h" />
+    <ClInclude Include="ToyClass.h" />
     <ClInclude Include="Value.h" />
   </ItemGroup>
   <ItemGroup>

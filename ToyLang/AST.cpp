@@ -1,5 +1,6 @@
 #include "AST.h"
 #include "AstVisitor.hpp"
+#include "Callable.hpp"
 
 Value ExprBinary::accept(ExprVisitor* visitor)
 {
@@ -62,6 +63,11 @@ void StmtWhile::accept(StmtVisitor* visitor)
 }
 
 void StmtReturn::accept(StmtVisitor* visitor)
+{
+	return visitor->visit(this);
+}
+
+void StmtClass::accept(StmtVisitor* visitor)
 {
 	return visitor->visit(this);
 }

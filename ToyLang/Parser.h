@@ -18,14 +18,15 @@ public:
     std::vector<std::unique_ptr<Stmt>> parse();
 
     std::unique_ptr<Stmt> decleration();
-    std::unique_ptr<Stmt> function();
-    std::unique_ptr<Stmt> varDecl();
+    std::unique_ptr<StmtFunction> function(std::string type);
+    std::unique_ptr<StmtVarDecl> varDecl();
+    std::unique_ptr<StmtClass> classDecl();
 
     std::unique_ptr<Stmt> statement();
-    std::unique_ptr<Stmt> block();
-    std::unique_ptr<Stmt> ifStatement();
-    std::unique_ptr<Stmt> whileStatement();
-    std::unique_ptr<Stmt> forStatement();
+    std::unique_ptr<StmtBlock> block();
+    std::unique_ptr<StmtIf> ifStatement();
+    std::unique_ptr<StmtWhile> whileStatement();
+    std::unique_ptr<StmtBlock> forStatement();
 
     std::unique_ptr<Expr> parseExpr();
     std::unique_ptr<Expr> assignment();
@@ -75,17 +76,17 @@ public:
         }
         return false;
     }
-    void consume(TokenType type, const char* msg);
+    void consume(TokenType type, std::string msg);
 
 	void panic();
 
-    inline std::unique_ptr<Expr> error(const char* message)
+    inline std::unique_ptr<Expr> error(std::string message)
     {
         std::cout << message << std::endl;
         this->panic();
         return nullptr;
     }
-    inline std::unique_ptr<Expr> errorAtToken(const char* message)
+    inline std::unique_ptr<Expr> errorAtToken(std::string message)
     {
         std::cout << "[line" << tokens[currentToken].line << "] Error" << message << std::endl;
         this->panic();

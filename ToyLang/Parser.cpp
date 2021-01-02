@@ -24,22 +24,26 @@ std::unique_ptr<Stmt> Parser::decleration()
 
 	if (token.type == TokenType::FUNC)
 	{
-		return std::move(function());
+		return function("function");
+	}
+	else if (token.type == TokenType::CLASS)
+	{
+		return classDecl();
 	}
 	else if (token.type == TokenType::VAR)
 	{
-		return std::move(varDecl());
+		return varDecl();
 	}
 
 	std::cout << "[ERROR] Invalid token '" << token.getLexeme() << "' at line: " << token.line << std::endl;
 	return nullptr;
 }
 
-std::unique_ptr<Stmt> Parser::function()
+std::unique_ptr<StmtFunction> Parser::function(std::string type)
 {
 	Token name = advance();
 	std::vector<Token> params;
-	consume(TokenType::OPEN_PAREN, "Expect '(' after a function name");
+	consume(TokenType::OPEN_PAREN, "Expect '(' after a " + type + " name");
 	if (peek().type != TokenType::CLOSE_PAREN)
 	{
 		params.push_back(advance());
@@ -50,7 +54,7 @@ std::unique_ptr<Stmt> Parser::function()
 		params.push_back(advance());
 	}
 
-	consume(TokenType::OPEN_BRACE, "Expect '{' at function start.");
+	consume(TokenType::OPEN_BRACE, "Expect '{' at " + type + " start.");
 
 	std::vector<std::unique_ptr<Stmt>> body;
 	while (!match(TokenType::CLOSE_BRACE))
@@ -58,10 +62,10 @@ std::unique_ptr<Stmt> Parser::function()
 		body.push_back(std::move(statement()));
 	}
 
-	return std::unique_ptr<Stmt>(new StmtFunction(name, std::move(body), params));
+	return std::make_unique<StmtFunction>(name, std::move(body), params);
 }
 
-std::unique_ptr<Stmt> Parser::varDecl()
+std::unique_ptr<StmtVarDecl> Parser::varDecl()
 {
 	Token name = advance();
 	std::unique_ptr<Expr> init(nullptr);
@@ -72,6 +76,20 @@ std::unique_ptr<Stmt> Parser::varDecl()
 
 	consume(TokenType::SEMI_COLON, "Expect ';' after variable decleration.");
 	return std::make_unique<StmtVarDecl>(name, std::move(init));
+}
+
+std::unique_ptr<StmtClass> Parser::classDecl()
+{
+	Token name = advance();
+	consume(TokenType::OPEN_BRACE, "Expect '{' after class name.");
+	std::vector<std::unique_ptr<StmtFunction>> methods;
+
+	while (!match(TokenType::CLOSE_BRACE))
+	{
+		methods.push_back(std::move(function("method")));
+	}
+
+	return std::make_unique<StmtClass>(name, std::move(methods));
 }
 
 std::unique_ptr<Stmt> Parser::statement()
@@ -120,7 +138,7 @@ std::unique_ptr<Stmt> Parser::statement()
 	}
 }
 
-std::unique_ptr<Stmt> Parser::block()
+std::unique_ptr<StmtBlock> Parser::block()
 {
 	std::vector<std::unique_ptr<Stmt>> stmts;
 	while (!match(TokenType::CLOSE_BRACE))
@@ -130,7 +148,7 @@ std::unique_ptr<Stmt> Parser::block()
 	return std::make_unique<StmtBlock>(std::move(stmts));
 }
 
-std::unique_ptr<Stmt> Parser::ifStatement()
+std::unique_ptr<StmtIf> Parser::ifStatement()
 {
 	consume(TokenType::OPEN_PAREN, "Expect '(' after 'if'.");
 	Token paren = consumed();
@@ -145,7 +163,7 @@ std::unique_ptr<Stmt> Parser::ifStatement()
 	return std::make_unique<StmtIf>(std::move(cond), paren, std::move(then), std::move(els));
 }
 
-std::unique_ptr<Stmt> Parser::whileStatement()
+std::unique_ptr<StmtWhile> Parser::whileStatement()
 {
 	consume(TokenType::OPEN_PAREN, "Expect '(' after 'while'.");
 	Token paren = consumed();
@@ -157,7 +175,7 @@ std::unique_ptr<Stmt> Parser::whileStatement()
 	return std::make_unique<StmtWhile>(std::move(cond), paren, std::move(then));
 }
 
-std::unique_ptr<Stmt> Parser::forStatement()
+std::unique_ptr<StmtBlock> Parser::forStatement()
 {
 	consume(TokenType::OPEN_PAREN, "Expect '(' after 'for'.");
 	Token paren = consumed();
@@ -376,7 +394,7 @@ std::unique_ptr<Expr> Parser::primary()
 	}
 }
 
-void Parser::consume(TokenType type, const char* msg)
+void Parser::consume(TokenType type, std::string msg)
 {
 	if (tokens[currentToken].type == type)
 	{

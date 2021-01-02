@@ -22,4 +22,5 @@ public:
     virtual void visit(StmtIf* stmt) = 0;
     virtual void visit(StmtWhile* stmt) = 0;
     virtual void visit(StmtReturn* stmt) = 0;
+    virtual void visit(StmtClass* stmt) = 0;
 };

@@ -1,18 +1,12 @@
-func main()
+class MyClass
 {
-	var t0 = clock();
-	println(fibb(20));
-	print("Time elapsed: ");
-	print(clock() - t0);
-	print(" sec\n");
 }
 
-func fibb(x)
+func main()
 {
-	if (x <= 1)
-		return 1;
-	else 
-		return fibb(x-1) + fibb(x-2);
+	var	x = MyClass();
+	println(MyClass);
+	println(x);
 }
 
 func println(s)

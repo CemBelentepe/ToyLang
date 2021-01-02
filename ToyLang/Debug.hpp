@@ -136,7 +136,7 @@ public:
 
 	void visit(StmtWhile* stmt) override
 	{
-		std::cout << "While: ";
+		std::cout << "WHILE: ";
 		stmt->cond->accept(this);
 		std::cout << "\nTHEN:\n";
 		stmt->then->accept(this);
@@ -148,5 +148,13 @@ public:
 		std::cout << "RETURN: ";
 		stmt->expr->accept(this);
 		std::cout << "\n";
+	}
+
+	void visit(StmtClass* stmt)
+	{
+		std::cout << "CLASS " << stmt->name.getLexeme() << "\n";
+		for (auto& mem : stmt->methods)
+			mem->accept(this);
+		std::cout << "ENDCLASS\n";
 	}
 };
