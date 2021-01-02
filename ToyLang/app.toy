@@ -3,7 +3,7 @@ func main()
 	var t0 = clock();
 	println(fibb(20));
 	print("Time elapsed: ");
-	print(clock() - start);
+	print(clock() - t0);
 	print(" sec\n");
 }
 
