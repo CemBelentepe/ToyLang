@@ -444,7 +444,6 @@ void Parser::panic()
 	{
 		if (type == TokenType::SEMI_COLON)
 		{
-			advance();
 			return;
 		}
 
