@@ -176,10 +176,12 @@ public:
 	NativeArray()
 		: ToyClass("Array", {})
 	{
-		this->methods["get"] = Value(std::make_shared<MethodGet >());
-		this->methods["set"] = Value(std::make_shared<MethodSet >());
+		this->methods["get"] = Value(std::make_shared<MethodGet>());
+		this->methods["set"] = Value(std::make_shared<MethodSet>());
+		this->methods["__iget__"] = Value(std::make_shared<MethodGet>());
+		this->methods["__iset__"] = Value(std::make_shared<MethodSet>());
 		this->methods["push"] = Value(std::make_shared<MethodPush>());
-		this->methods["pop"] = Value(std::make_shared<MethodPop >());
+		this->methods["pop"] = Value(std::make_shared<MethodPop>());
 		this->methods["size"] = Value(std::make_shared<MethodSize>());
 	}
 

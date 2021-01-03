@@ -12,7 +12,7 @@ class ToyFunction;
 
 enum class ExprType
 {
-	Binary, Unary, Literal, VariableGet, VariableSet, Call, MemberGet, MemberSet
+	Binary, Unary, Literal, VariableGet, VariableSet, Call, MemberGet, MemberSet, ArrayGet, ArraySet
 };
 
 class Expr
@@ -112,6 +112,36 @@ public:
 
 	ExprMemberSet(Token name, std::unique_ptr<Expr> object, std::unique_ptr<Expr> val, Token op)
 		: Expr(ExprType::MemberSet), name(name), object(std::move(object)), val(std::move(val)), op(op)
+	{}
+
+	Value accept(ExprVisitor* visitor) override;
+};
+
+class ExprArrayGet : public Expr
+{
+public:
+	Token paren;
+	std::unique_ptr<Expr> object;
+	std::unique_ptr<Expr> index;
+
+	ExprArrayGet(Token paren, std::unique_ptr<Expr> object, std::unique_ptr<Expr> index)
+		: Expr(ExprType::ArrayGet), paren(paren), object(std::move(object)), index(std::move(index))
+	{}
+
+	Value accept(ExprVisitor* visitor) override;
+};
+
+class ExprArraySet : public Expr
+{
+public:
+	Token paren;
+	std::unique_ptr<Expr> object;
+	std::unique_ptr<Expr> index;
+	std::unique_ptr<Expr> val;
+	Token op;
+
+	ExprArraySet(Token paren, std::unique_ptr<Expr> object, std::unique_ptr<Expr> index, std::unique_ptr<Expr> val, Token op)
+		: Expr(ExprType::ArraySet), paren(paren), object(std::move(object)), index(std::move(index)), val(std::move(val)), op(op)
 	{}
 
 	Value accept(ExprVisitor* visitor) override;

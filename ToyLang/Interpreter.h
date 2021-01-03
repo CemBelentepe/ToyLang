@@ -23,6 +23,8 @@ public:
 	Value visit(ExprCall* expr);
 	Value visit(ExprMemberGet* expr);
 	Value visit(ExprMemberSet* expr);
+	Value visit(ExprArrayGet* expr);
+	Value visit(ExprArraySet* expr);
 
 	void visit(StmtExpr* stmt);
 	void visit(StmtFunction* stmt);

@@ -247,6 +247,11 @@ std::unique_ptr<Expr> Parser::assignment()
 			ExprMemberGet* get = (ExprMemberGet*)expr.get();
 			return std::make_unique<ExprMemberSet>(get->name, std::move(get->object), std::move(asgn), op);
 		}
+		else if (expr->instance == ExprType::ArrayGet)
+		{
+			ExprArrayGet* get = (ExprArrayGet*)expr.get();
+			return std::make_unique<ExprArraySet>(get->paren, std::move(get->object), std::move(get->index), std::move(asgn), op);
+		}
 		else
 		{
 			return this->errorAtToken("[ERROR] Invalid assignment target");
@@ -372,6 +377,13 @@ std::unique_ptr<Expr> Parser::call()
 			consume(TokenType::IDENTIFIER, "Expect an identifier as a member.");
 			Token mem = consumed();
 			expr = std::make_unique<ExprMemberGet>(mem, std::move(expr));
+		}
+		else if (match(TokenType::OPEN_BRACKET))
+		{
+			Token paren = consumed();
+			std::unique_ptr<Expr> index = parseExpr();
+			consume(TokenType::CLOSE_BRACKET, "Expect ']' after an index of '['.");
+			expr = std::make_unique<ExprArrayGet>(paren, std::move(expr), std::move(index));
 		}
 		else
 		{

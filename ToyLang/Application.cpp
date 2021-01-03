@@ -11,7 +11,7 @@
 #include "Parser.h"
 #include "Interpreter.h"
 
-// TODO: class
+// TODO: Inheritance
 
 void run(const char* filePath)
 {

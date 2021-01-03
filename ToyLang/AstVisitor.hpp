@@ -9,9 +9,11 @@ public:
     virtual Value visit(ExprLiteral* expr) = 0;
     virtual Value visit(ExprVariableGet* expr) = 0;
     virtual Value visit(ExprVariableSet* expr) = 0;
-    virtual Value visit(ExprCall* expr) = 0;
     virtual Value visit(ExprMemberGet* expr) = 0;
     virtual Value visit(ExprMemberSet* expr) = 0;
+    virtual Value visit(ExprArrayGet* expr) = 0;
+    virtual Value visit(ExprArraySet* expr) = 0;
+    virtual Value visit(ExprCall* expr) = 0;
 };
 
 class StmtVisitor

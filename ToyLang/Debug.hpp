@@ -60,6 +60,46 @@ public:
 		return Value();
 	}
 
+	Value visit(ExprMemberGet* expr) override
+	{
+		std::cout << "(";
+		expr->object->accept(this);
+		std::cout << "." << expr->name.getLexeme() << ")";
+		return Value();
+	}
+
+	Value visit(ExprMemberSet* expr) override
+	{
+		std::cout << "(";
+		expr->object->accept(this);
+		std::cout << "." << expr->name.getLexeme() << " ";
+		expr->val->accept(this);
+		std::cout << ")";
+		return Value();
+	}
+
+	Value visit(ExprArrayGet* expr) override
+	{
+		std::cout << "(";
+		expr->object->accept(this);
+		std::cout << "[";
+		expr->index->accept(this);
+		std::cout << "])";
+		return Value();
+	}
+
+	Value visit(ExprArraySet* expr) override
+	{
+		std::cout << "(";
+		expr->object->accept(this);
+		std::cout << "[";
+		expr->index->accept(this);
+		std::cout << "] = ";
+		expr->val->accept(this);
+		std::cout << ")";
+		return Value();
+	}
+
 	Value visit(ExprCall* expr) override
 	{
 		std::cout << "(";
@@ -76,24 +116,6 @@ public:
 		}
 		std::cout << "))";
 
-		return Value();
-	}
-
-	Value visit(ExprMemberGet* expr) override
-	{
-		std::cout << "(";
-		expr->object->accept(this);
-		std::cout << "." << expr->name.getLexeme() << ")";
-		return Value();
-	}
-
-	Value visit(ExprMemberSet* expr) override
-	{
-		std::cout << "(";
-		expr->object->accept(this);
-		std::cout << "." << expr->name.getLexeme() << " ";
-		expr->val->accept(this);
-		std::cout << ")";
 		return Value();
 	}
 

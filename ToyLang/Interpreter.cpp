@@ -45,8 +45,17 @@ Value Interpreter::visit(ExprBinary* expr)
 		Value b = expr->rhs->accept(this);
 		auto callMethod = [this](Value& a, Value& b, const std::string& name) {
 			Value func = std::get<std::shared_ptr<ToyInstance>>(a.data)->get(a, name);
+			Callable* callable = std::get<std::shared_ptr<Callable>>(func.data).get();
 			if (func.tag == TypeTag::CALLABLE)
-				return std::get<std::shared_ptr<Callable>>(func.data)->call(this, { b });
+			{
+				if (callable->arity() == 1)
+					return callable->call(this, { b });
+				else
+				{
+					std::cout << "[ERROR] Invalid function call with invalid argument count\n";
+					return Value();
+				}
+			}
 			else
 			{
 				std::cout << "Type " << std::get<std::shared_ptr<ToyInstance>>(a.data)->klass->name() << " does not have '" << name << "' method.\n";
@@ -153,8 +162,17 @@ Value Interpreter::visit(ExprUnary* expr)
 {
 	auto callMethod = [this](Value& a, const std::string& name) {
 		Value func = std::get<std::shared_ptr<ToyInstance>>(a.data)->get(a, name);
+		Callable* callable = std::get<std::shared_ptr<Callable>>(func.data).get();
 		if (func.tag == TypeTag::CALLABLE)
-			return std::get<std::shared_ptr<Callable>>(func.data)->call(this, { });
+		{
+			if (callable->arity() == 0)
+				return callable->call(this, { });
+			else
+			{
+				std::cout << "[ERROR] Invalid function call with invalid argument count\n";
+				return Value();
+			}
+		}
 		else
 		{
 			std::cout << "Type " << std::get<std::shared_ptr<ToyInstance>>(a.data)->klass->name() << " does not have '" << name << "' method.\n";
@@ -222,8 +240,17 @@ Value Interpreter::visit(ExprVariableSet* expr)
 		{
 			auto callMethod = [this](Value& a, Value& b, const std::string& name) {
 				Value func = std::get<std::shared_ptr<ToyInstance>>(a.data)->get(a, name);
+				Callable* callable = std::get<std::shared_ptr<Callable>>(func.data).get();
 				if (func.tag == TypeTag::CALLABLE)
-					return std::get<std::shared_ptr<Callable>>(func.data)->call(this, { b });
+				{
+					if (callable->arity() == 1)
+						return callable->call(this, { b });
+					else
+					{
+						std::cout << "[ERROR] Invalid function call with invalid argument count\n";
+						return Value();
+					}
+				}
 				else
 				{
 					std::cout << "Type " << std::get<std::shared_ptr<ToyInstance>>(a.data)->klass->name() << " does not have '" << name << "' method.\n";
@@ -300,8 +327,17 @@ Value Interpreter::visit(ExprMemberSet* expr)
 				Value val = expr->val->accept(this);
 				auto callMethod = [this](Value& a, Value& b, const std::string& name) {
 					Value func = std::get<std::shared_ptr<ToyInstance>>(a.data)->get(a, name);
+					Callable* callable = std::get<std::shared_ptr<Callable>>(func.data).get();
 					if (func.tag == TypeTag::CALLABLE)
-						return std::get<std::shared_ptr<Callable>>(func.data)->call(this, { b });
+					{
+						if(callable->arity() == 1)
+							return callable->call(this, { b });
+						else
+						{
+							std::cout << "[ERROR] Invalid function call with invalid argument count\n";
+							return Value();
+						}
+					}
 					else
 					{
 						std::cout << "Type " << std::get<std::shared_ptr<ToyInstance>>(a.data)->klass->name() << " does not have '" << name << "' method.\n";
@@ -375,6 +411,139 @@ Value Interpreter::visit(ExprMemberSet* expr)
 	}
 }
 
+Value Interpreter::visit(ExprArrayGet* expr)
+{
+	Value obj = expr->object->accept(this);
+	if (obj.tag == TypeTag::INSTANCE)
+	{
+		Value index = expr->index->accept(this);
+		Value method = std::get<std::shared_ptr<ToyInstance>>(obj.data)->get(obj, "__iget__");
+		Callable* callable = std::get<std::shared_ptr<Callable>>(method.data).get();
+		if (callable->arity() == 1)
+			return callable->call(this, { index });
+		else
+		{
+			std::cout << "[ERROR] Invalid function call with invalid argument count at line: " << expr->paren.line << std::endl;
+			return Value();
+		}
+	}
+	else
+	{
+		std::cout << "[ERROR] Array get can only be used on an object line: " << expr->paren.line << ".\n";
+		return Value();
+	}
+}
+
+Value Interpreter::visit(ExprArraySet* expr)
+{
+	Value obj = expr->object->accept(this);
+	if (obj.tag == TypeTag::INSTANCE)
+	{
+			Value index = expr->index->accept(this);
+			Value val = expr->val->accept(this);
+			Value set_method = std::get<std::shared_ptr<ToyInstance>>(obj.data)->get(obj, "__iset__");
+			Callable* set_callable = std::get<std::shared_ptr<Callable>>(set_method.data).get();
+			if (set_callable->arity() == 2)
+			{
+				if (expr->op.type != TokenType::EQUAL)
+				{
+					auto callMethod = [this](Value& a, Value& b, const std::string& name) {
+						Value func = std::get<std::shared_ptr<ToyInstance>>(a.data)->get(a, name);
+						Callable* callable = std::get<std::shared_ptr<Callable>>(func.data).get();
+						if (func.tag == TypeTag::CALLABLE)
+						{
+							if (callable->arity() == 1)
+								return callable->call(this, { b });
+							else
+							{
+								std::cout << "[ERROR] Invalid function call with invalid argument count\n";
+								return Value();
+							}
+						}
+						else
+						{
+							std::cout << "Type " << std::get<std::shared_ptr<ToyInstance>>(a.data)->klass->name() << " does not have '" << name << "' method.\n";
+							return Value();
+						}
+					};
+
+					Value method = std::get<std::shared_ptr<ToyInstance>>(obj.data)->get(obj, "__iget__");
+					Callable* callable = std::get<std::shared_ptr<Callable>>(method.data).get();
+					Value getted;
+					if (callable->arity() == 1)
+						getted = callable->call(this, { index });
+					else
+					{
+						std::cout << "[ERROR] Invalid function call with invalid argument count at line: " << expr->paren.line << std::endl;
+						return Value();
+					}
+
+					if (getted.tag == TypeTag::INSTANCE)
+					{
+						switch (expr->op.type)
+						{
+						case TokenType::PLUS_EQUAL:
+							val = callMethod(getted, val, "__iadd__");
+							break;
+						case TokenType::MINUS_EQUAL:
+							val = callMethod(getted, val, "__isub__");
+							break;
+						case TokenType::STAR_EQUAL:
+							val = callMethod(getted, val, "__imul__");
+							break;
+						case TokenType::SLASH_EQUAL:
+							val = callMethod(getted, val, "__idiv__");
+							break;
+						}
+					}
+					else if (getted.tag != TypeTag::ERR)
+					{
+						if (val.tag == TypeTag::NUMBER && getted.tag == TypeTag::NUMBER)
+						{
+							switch (expr->op.type)
+							{
+							case TokenType::PLUS_EQUAL:
+								val.data = std::get<double>(getted.data) + std::get<double>(val.data);
+								break;
+							case TokenType::MINUS_EQUAL:
+								val.data = std::get<double>(getted.data) - std::get<double>(val.data);
+								break;
+							case TokenType::STAR_EQUAL:
+								val.data = std::get<double>(getted.data) * std::get<double>(val.data);
+								break;
+							case TokenType::SLASH_EQUAL:
+								val.data = std::get<double>(getted.data) / std::get<double>(val.data);
+								break;
+							}
+						}
+						else if (val.tag == TypeTag::STRING && getted.tag == TypeTag::STRING)
+						{
+							std::stringstream ss;
+							ss << std::get<std::string>(getted.data) << std::get<std::string>(val.data);
+							val.data = ss.str().c_str();
+						}
+						else
+						{
+							return runtimeTypeError(expr->op);
+						}
+					}
+				}
+
+				return set_callable->call(this, { index, val });
+			}
+			else
+			{
+				std::cout << "[ERROR] Invalid function call with invalid argument count at line: " << expr->paren.line << std::endl;
+				return Value();
+			}
+	}
+	else
+	{
+		std::cout << "[ERROR] Array get can only be used on an object line: " << expr->paren.line << ".\n";
+		return Value();
+	}
+}
+
 
 Value Interpreter::visit(ExprCall* expr)
 {
@@ -395,7 +564,7 @@ Value Interpreter::visit(ExprCall* expr)
 	}
 	else
 	{
-		std::cout << "[ERROR] Invalid function call with invalid argument number at line: " << expr->paren.line << std::endl;
+		std::cout << "[ERROR] Invalid function call with invalid argument count at line: " << expr->paren.line << std::endl;
 		return Value();
 	}
 }
