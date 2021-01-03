@@ -32,16 +32,13 @@ void ToyInstance::set(std::string name, Value val)
 
 Value ToyInstance::bindTo(Value instance, Callable* callable)
 {
-	ToyFunction* func = (ToyFunction*)callable;
-	std::shared_ptr<ToyFunction> method = std::make_shared<ToyFunction>(func->func);
-	method->bind(instance);
-	return Value(method);
+	return ((ToyFunction*)callable)->bind(instance);
 }
 
-ToyClass::ToyClass(StmtClass* klass)
-	: klass(klass), init(nullptr)
+ToyClass::ToyClass(std::string m_name, const std::vector<std::unique_ptr<StmtFunction>>& stmt_methods)
+	: m_name(m_name), init(nullptr)
 {
-	for (auto& m : klass->methods)
+	for (auto& m : stmt_methods)
 	{
 		std::shared_ptr<Callable> method = std::make_shared<ToyFunction>(m.get());
 		methods[m->name.getLexeme()] = Value(method);
@@ -85,5 +82,5 @@ int ToyClass::arity()
 
 std::string ToyClass::name()
 {
-	return klass->name.getLexeme();
+	return m_name;
 }

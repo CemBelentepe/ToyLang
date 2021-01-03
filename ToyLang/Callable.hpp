@@ -24,7 +24,7 @@ public:
 	ToyFunction(StmtFunction* func)
 		: func(func) {}
 
-	Value call(Interpreter* interpreter, std::vector<Value> args) override
+	virtual Value call(Interpreter* interpreter, std::vector<Value> args) override
 	{
 		Enviroment* env = interpreter->enviroment;
 		interpreter->enviroment = new Enviroment(interpreter->globals);
@@ -51,57 +51,20 @@ public:
 		return ret;
 	}
 
-	int arity() override
+	virtual int arity() override
 	{
 		return func->params.size();
 	}
 
-	std::string name() override
+	virtual std::string name() override
 	{
 		return func->name.getLexeme();
 	}
 
-	void bind(Value self)
+	virtual Value bind(Value self)
 	{
-		this->self = self;
-	}
-};
-
-class NativePrint : public Callable
-{
-public:
-	Value call(Interpreter* interpreter, std::vector<Value> args) override
-	{
-		std::cout << args[0];
-		return Value();
-	}
-
-	int arity()
-	{
-		return 1;
-	}
-
-	std::string name() override
-	{
-		return "print";
-	}
-};
-
-class NativeClock : public Callable
-{
-public:
-	Value call(Interpreter* interpreter, std::vector<Value> args) override
-	{
-		return (double)clock() / CLOCKS_PER_SEC;
-	}
-
-	int arity()
-	{
-		return 0;
-	}
-
-	std::string name() override
-	{
-		return "clock";
+		std::shared_ptr<ToyFunction> method = std::make_shared<ToyFunction>(func);
+		method->self = self;
+		return Value(method);
 	}
 };

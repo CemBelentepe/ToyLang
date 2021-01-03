@@ -68,6 +68,12 @@
     <ClInclude Include="ToyClass.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="NativeArray.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NativeFuncs.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.toy">

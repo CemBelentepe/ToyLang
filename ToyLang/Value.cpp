@@ -2,6 +2,8 @@
 #include "Callable.hpp"
 #include "ToyClass.h"
 
+#include <sstream>
+
 Value::Value()
 	:tag(TypeTag::ERR), data(nullptr)
 {}
@@ -37,6 +39,13 @@ Value::Value(std::shared_ptr<ToyInstance> val)
 void Value::print() const
 {
 	std::cout << *this;
+}
+
+std::string Value::toString()
+{
+	std::stringstream ss;
+	ss << *this;
+	return ss.str();
 }
 
 std::ostream& operator<<(std::ostream& os, const Value& val)

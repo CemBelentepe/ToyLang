@@ -5,6 +5,8 @@
 #include "Enviroment.hpp"
 #include "Callable.hpp"
 #include "ToyClass.h"
+#include "NativeArray.hpp"
+#include "NativeFuncs.hpp"
 
 Value Interpreter::runtimeTypeError(Token errToken)
 {
@@ -23,6 +25,8 @@ void Interpreter::run()
 
 	enviroment->define("print", Value(std::make_shared<NativePrint>()));
 	enviroment->define("clock", Value(std::make_shared<NativeClock>()));
+	enviroment->define("str", Value(std::make_shared<NativeStr>()));
+	enviroment->define("Array", Value(std::make_shared<NativeArray>()));
 
 	for (auto& stmt : root)
 		stmt->accept(this);
@@ -353,5 +357,5 @@ void Interpreter::visit(StmtReturn* stmt)
 
 void Interpreter::visit(StmtClass* stmt)
 {
-	enviroment->define(stmt->name, Value(std::make_shared<ToyClass>(stmt)));
+	enviroment->define(stmt->name, Value(std::make_shared<ToyClass>(stmt->name.getLexeme(), stmt->methods)));
 }

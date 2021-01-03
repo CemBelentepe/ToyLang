@@ -158,6 +158,8 @@
     <ClInclude Include="Debug.hpp" />
     <ClInclude Include="Enviroment.hpp" />
     <ClInclude Include="Interpreter.h" />
+    <ClInclude Include="NativeArray.hpp" />
+    <ClInclude Include="NativeFuncs.hpp" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="Scanner.h" />
     <ClInclude Include="ToyClass.h" />

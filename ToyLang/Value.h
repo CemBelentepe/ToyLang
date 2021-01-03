@@ -3,7 +3,6 @@
 #include <iostream>
 #include <variant>
 
-
 class Callable;
 class ToyClass;
 class ToyInstance;
@@ -32,6 +31,6 @@ public:
 	Value(std::shared_ptr<ToyInstance> val);
 
 	void print() const;
-
+	std::string toString();
 	friend std::ostream& operator<<(std::ostream& os, const Value& val);
 };

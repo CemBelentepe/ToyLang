@@ -1,36 +1,15 @@
-class Vector
-{
-	__init__(x, y)
-	{
-		self.x = x;
-		self.y = y;
-	}
-
-	print()
-	{
-		print(self.x);
-		print(" ");
-		println(self.y);
-	}
-
-	add(vec)
-	{
-		self.x += vec.x;
-		self.y += vec.y;
-	}
-}
-
 func main()
 {
-	var	vec1 = Vector(3, 5);
-	vec1.print();
-	var vec2 = Vector(6, 5);
-	vec1.add(vec2);
-	vec1.print();
+	var arr = Array();
+	for(var i = 0; i < 10; i+=1)
+		arr.push(i);
+	arr.pop();
+	arr.set(2, 20);
+	for(var i = 0; i < arr.size(); i+=1)
+		print(str(arr.get(i)) + " ");
 }
 
 func println(s)
 {
-	print(s);
-	print("\n");
+	print(str(s) + "\n");
 }

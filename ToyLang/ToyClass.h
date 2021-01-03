@@ -14,20 +14,20 @@ public:
 
 	Value get(Value instance, std::string name);
 	void set(std::string name, Value val);
-	Value bindTo(Value instance, Callable* callable);
+	virtual Value bindTo(Value instance, Callable* callable);
 };
 
 class ToyClass : public Callable
 {
 public:
-	StmtClass* klass;
+	std::string m_name;
 	std::unordered_map<std::string, Value> methods;
 	Callable* init;
 
-	ToyClass(StmtClass* klass);
-	Value getMethod(std::string name);
+	ToyClass(std::string m_name, const std::vector<std::unique_ptr<StmtFunction>>& stmt_methods);
+	virtual Value getMethod(std::string name);
 
-	Value call(Interpreter* interpreter, std::vector<Value> args) override;
-	int arity() override;
-	std::string name() override;
+	virtual Value call(Interpreter* interpreter, std::vector<Value> args) override;
+	virtual int arity() override;
+	virtual std::string name() override;
 };
