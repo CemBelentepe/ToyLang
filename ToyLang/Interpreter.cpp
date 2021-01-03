@@ -1,5 +1,4 @@
 #include "Interpreter.h"
-#include <sstream>
 #include <iostream>
 
 #include "Enviroment.hpp"
@@ -11,7 +10,8 @@
 
 Value Interpreter::runtimeTypeError(Token errToken)
 {
-	std::cout << "[ERROR] Invalid type for operand '" << errToken.getLexeme() << "' at line: " << errToken.line << std::endl;
+	err << "[ERROR] Invalid type for operand '" << errToken.getLexeme() << "' at line: " << errToken.line << std::endl;
+	throw err.str();
 	return Value();
 }
 
@@ -31,7 +31,14 @@ void Interpreter::run()
 
 	for (auto& stmt : root)
 		stmt->accept(this);
-	std::get<std::shared_ptr<Callable>>(enviroment->getVar("main").data)->call(this, {});
+	try
+	{
+		std::get<std::shared_ptr<Callable>>(enviroment->getVar("main").data)->call(this, {});
+	}
+	catch (std::string err)
+	{
+		std::cout << err;
+	}
 
 	delete globals;
 }
@@ -52,13 +59,15 @@ Value Interpreter::visit(ExprBinary* expr)
 					return callable->call(this, { b });
 				else
 				{
-					std::cout << "[ERROR] Invalid function call with invalid argument count\n";
+					err << "[ERROR] Invalid function call with invalid argument count\n";
+					throw err.str();
 					return Value();
 				}
 			}
 			else
 			{
-				std::cout << "Type " << std::get<std::shared_ptr<ToyInstance>>(a.data)->klass->name() << " does not have '" << name << "' method.\n";
+				err << "[ERROR] Type " << std::get<std::shared_ptr<ToyInstance>>(a.data)->klass->name() << " does not have '" << name << "' method.\n";
+				throw err.str();
 				return Value();
 			}
 		};
@@ -169,13 +178,15 @@ Value Interpreter::visit(ExprUnary* expr)
 				return callable->call(this, { });
 			else
 			{
-				std::cout << "[ERROR] Invalid function call with invalid argument count\n";
+				err << "[ERROR] Invalid function call with invalid argument count\n";
+				throw err.str();
 				return Value();
 			}
 		}
 		else
 		{
-			std::cout << "Type " << std::get<std::shared_ptr<ToyInstance>>(a.data)->klass->name() << " does not have '" << name << "' method.\n";
+			err << "Type " << std::get<std::shared_ptr<ToyInstance>>(a.data)->klass->name() << " does not have '" << name << "' method.\n";
+			throw err.str();
 			return Value();
 		}
 	};
@@ -247,13 +258,15 @@ Value Interpreter::visit(ExprVariableSet* expr)
 						return callable->call(this, { b });
 					else
 					{
-						std::cout << "[ERROR] Invalid function call with invalid argument count\n";
+						err << "[ERROR] Invalid function call with invalid argument count\n";
+						throw err.str();
 						return Value();
 					}
 				}
 				else
 				{
-					std::cout << "Type " << std::get<std::shared_ptr<ToyInstance>>(a.data)->klass->name() << " does not have '" << name << "' method.\n";
+					err << "Type " << std::get<std::shared_ptr<ToyInstance>>(a.data)->klass->name() << " does not have '" << name << "' method.\n";
+					throw err.str();
 					return Value();
 				}
 			};
@@ -294,13 +307,15 @@ Value Interpreter::visit(ExprMemberGet* expr)
 			return mem;
 		else
 		{
-			std::cout << "[ERROR] Object does not contain the member " << name << " at line: " << expr->name.line << ".\n";
+			err << "[ERROR] Object does not contain the member " << name << " at line: " << expr->name.line << ".\n";
+			throw err.str();
 			return Value();
 		}
 	}
 	else
 	{
-		std::cout << "[ERROR] Getter can only work on classes line: " << expr->name.line << ".\n";
+		err << "[ERROR] Getter can only work on classes line: " << expr->name.line << ".\n";
+		throw err.str();
 		return Value();
 	}
 
@@ -334,13 +349,15 @@ Value Interpreter::visit(ExprMemberSet* expr)
 							return callable->call(this, { b });
 						else
 						{
-							std::cout << "[ERROR] Invalid function call with invalid argument count\n";
+							err << "[ERROR] Invalid function call with invalid argument count\n";
+							throw err.str();
 							return Value();
 						}
 					}
 					else
 					{
-						std::cout << "Type " << std::get<std::shared_ptr<ToyInstance>>(a.data)->klass->name() << " does not have '" << name << "' method.\n";
+						err << "[ERROR] Type " << std::get<std::shared_ptr<ToyInstance>>(a.data)->klass->name() << " does not have '" << name << "' method.\n";
+						throw err.str();
 						return Value();
 					}
 				};
@@ -399,14 +416,16 @@ Value Interpreter::visit(ExprMemberSet* expr)
 			}
 			else
 			{
-				std::cout << "[ERROR] Object does not contain the member " << name << " at line: " << expr->name.line << ".\n";
+				err << "[ERROR] Object does not contain the member " << name << " at line: " << expr->name.line << ".\n";
+				throw err.str();
 				return Value();
 			}
 		}
 	}
 	else
 	{
-		std::cout << "[ERROR] Setter can only work on classes line: " << expr->name.line << ".\n";
+		err << "[ERROR] Setter can only work on classes line: " << expr->name.line << ".\n";
+		throw err.str();
 		return Value();
 	}
 }
@@ -423,13 +442,15 @@ Value Interpreter::visit(ExprArrayGet* expr)
 			return callable->call(this, { index });
 		else
 		{
-			std::cout << "[ERROR] Invalid function call with invalid argument count at line: " << expr->paren.line << std::endl;
+			err << "[ERROR] Invalid function call with invalid argument count at line: " << expr->paren.line << std::endl;
+			throw err.str();
 			return Value();
 		}
 	}
 	else
 	{
-		std::cout << "[ERROR] Array get can only be used on an object line: " << expr->paren.line << ".\n";
+		err << "[ERROR] Array get can only be used on an object line: " << expr->paren.line << ".\n";
+		throw err.str();
 		return Value();
 	}
 }
@@ -456,13 +477,15 @@ Value Interpreter::visit(ExprArraySet* expr)
 								return callable->call(this, { b });
 							else
 							{
-								std::cout << "[ERROR] Invalid function call with invalid argument count\n";
+								err << "[ERROR] Invalid function call with invalid argument count\n";
+								throw err.str();
 								return Value();
 							}
 						}
 						else
 						{
-							std::cout << "Type " << std::get<std::shared_ptr<ToyInstance>>(a.data)->klass->name() << " does not have '" << name << "' method.\n";
+							err << "[ERROR] Type " << std::get<std::shared_ptr<ToyInstance>>(a.data)->klass->name() << " does not have '" << name << "' method.\n";
+							throw err.str();
 							return Value();
 						}
 					};
@@ -474,7 +497,8 @@ Value Interpreter::visit(ExprArraySet* expr)
 						getted = callable->call(this, { index });
 					else
 					{
-						std::cout << "[ERROR] Invalid function call with invalid argument count at line: " << expr->paren.line << std::endl;
+						err << "[ERROR] Invalid function call with invalid argument count at line: " << expr->paren.line << std::endl;
+						throw err.str();
 						return Value();
 					}
 
@@ -533,13 +557,15 @@ Value Interpreter::visit(ExprArraySet* expr)
 			}
 			else
 			{
-				std::cout << "[ERROR] Invalid function call with invalid argument count at line: " << expr->paren.line << std::endl;
+				err << "[ERROR] Invalid function call with invalid argument count at line: " << expr->paren.line << std::endl;
+				throw err.str();
 				return Value();
 			}
 	}
 	else
 	{
-		std::cout << "[ERROR] Array get can only be used on an object line: " << expr->paren.line << ".\n";
+		err << "[ERROR] Array get can only be used on an object line: " << expr->paren.line << ".\n";
+		throw err.str();
 		return Value();
 	}
 }
@@ -550,7 +576,8 @@ Value Interpreter::visit(ExprCall* expr)
 	Value func = expr->callee->accept(this);
 	if (func.tag != TypeTag::CALLABLE)
 	{
-		std::cout << "[ERROR] Invalid function call at line: " << expr->paren.line << std::endl;
+		err << "[ERROR] Invalid function call at line: " << expr->paren.line << std::endl;
+		throw err.str();
 		return Value();
 	}
 	else if (std::get<std::shared_ptr<Callable>>(func.data)->arity() == expr->args.size())
@@ -564,7 +591,8 @@ Value Interpreter::visit(ExprCall* expr)
 	}
 	else
 	{
-		std::cout << "[ERROR] Invalid function call with invalid argument count at line: " << expr->paren.line << std::endl;
+		err << "[ERROR] Invalid function call with invalid argument count at line: " << expr->paren.line << std::endl;
+		throw err.str();
 		return Value();
 	}
 }
@@ -618,7 +646,8 @@ void Interpreter::visit(StmtIf* stmt)
 	}
 	else
 	{
-		std::cout << "Invalid data type for if statement at line: " << stmt->paren.line << std::endl;
+		err << "Invalid data type for if statement at line: " << stmt->paren.line << std::endl;
+		throw err.str();
 	}
 }
 
@@ -634,7 +663,8 @@ void Interpreter::visit(StmtWhile* stmt)
 
 	if (res.tag != TypeTag::BOOL)
 	{
-		std::cout << "Invalid data type for if statement at line: " << stmt->paren.line << std::endl;
+		err << "Invalid data type for if statement at line: " << stmt->paren.line << std::endl;
+		throw err.str();
 	}
 }
 

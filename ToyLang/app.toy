@@ -17,16 +17,36 @@ class Vector
 	{
 		println(str(self.x) + ", " + str(self.y));
 	}
-}
 
+	__iget__(index)
+	{
+		if(index == 0)
+			return self.x;
+		else if(index == 1)
+			return self.y;
+		else 
+			return 0;
+	}
+	
+	__iset__(index, val)
+	{
+		if(index == 0)
+			return self.x = val;
+		else if(index == 1)
+			return self.y = val;
+		else 
+			return 0;
+	}
+}
 
 func main()
 {
 	var arr = Array();
 	for(var i = 0; i < 10; i+=1)
-		arr.push(Vector(i, i + 1));
+		arr.push(Vector(i, i));
 	for(var i = 0; i < 10; i+=1)
 		arr[i] *= 2;
+	
 		
 	for(var i = 0; i < 10; i+=1)
 	{

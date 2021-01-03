@@ -1,5 +1,6 @@
 #pragma once
 #include "AstVisitor.hpp"
+#include <sstream>
 
 class Enviroment;
 
@@ -8,6 +9,7 @@ class Interpreter : public ExprVisitor, public StmtVisitor
 private:
 	Value runtimeTypeError(Token errToken);
 	std::vector<Stmt*> root;
+	std::stringstream err;
 public:
 	Enviroment* enviroment;
 	Enviroment* globals;

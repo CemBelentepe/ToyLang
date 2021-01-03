@@ -14,6 +14,8 @@ private:
     size_t currentToken;
 
 public:
+    bool hadError = false;
+
     Parser(std::vector<Token>& tokens);
     std::vector<std::unique_ptr<Stmt>> parse();
 
@@ -84,12 +86,14 @@ public:
     {
         std::cout << message << std::endl;
         this->panic();
+        hadError = true;
         return nullptr;
     }
     inline std::unique_ptr<Expr> errorAtToken(std::string message)
     {
-        std::cout << "[line" << tokens[currentToken].line << "] Error" << message << std::endl;
+        std::cout << "[ERROR line: " << tokens[currentToken].line << "] " << message << std::endl;
         this->panic();
+        hadError = true;
         return nullptr;
     }
 };

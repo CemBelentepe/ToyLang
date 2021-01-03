@@ -33,19 +33,22 @@ void run(const char* filePath)
 
     Parser parser(tokens);
     std::vector<std::unique_ptr<Stmt>> root = parser.parse();
-    std::vector<Stmt*> root_ref;
-    root_ref.reserve(root.capacity());
-    
-    for (auto& u_ptr : root)
-        root_ref.push_back(u_ptr.get());
+
+    if (!parser.hadError) {
+        std::vector<Stmt*> root_ref;
+        root_ref.reserve(root.capacity());
+
+        for (auto& u_ptr : root)
+            root_ref.push_back(u_ptr.get());
 
 #if DEBUG_TREE
-    AstDebugger astDebugger(root_ref);
-    astDebugger.debug();
+        AstDebugger astDebugger(root_ref);
+        astDebugger.debug();
 #endif
 
-    Interpreter interpreter(root_ref);
-    interpreter.run();
+        Interpreter interpreter(root_ref);
+        interpreter.run();
+    }
 }
 
 int main(int argc, char* argv[])
