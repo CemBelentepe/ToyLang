@@ -161,6 +161,96 @@ Value Interpreter::visit(ExprVariableSet* expr)
 	return val;
 }
 
+Value Interpreter::visit(ExprMemberGet* expr)
+{
+	Value object = expr->object->accept(this);
+	if (object.tag == TypeTag::INSTANCE)
+	{
+		std::string name = expr->name.getLexeme();
+		Value* mem = std::get<std::shared_ptr<ToyInstance>>(object.data)->get(name);
+		if (mem)
+			return *mem;
+		else
+		{
+			std::cout << "[ERROR] Object does not contain the member " << name << " at line: " << expr->name.line << ".\n";
+			return Value();
+		}
+	}
+	else
+	{
+		std::cout << "[ERROR] Getter can only work on classes line: " << expr->name.line << ".\n";
+		return Value();
+	}
+
+}
+
+Value Interpreter::visit(ExprMemberSet* expr)
+{
+	Value object = expr->object->accept(this);
+	if (object.tag == TypeTag::INSTANCE)
+	{
+		std::string name = expr->name.getLexeme();
+		if (expr->op.type == TokenType::EQUAL)
+		{
+			Value val = expr->val->accept(this);
+			std::get<std::shared_ptr<ToyInstance>>(object.data)->set(name, val);
+			return val;
+		}
+		else
+		{
+			Value* mem = std::get<std::shared_ptr<ToyInstance>>(object.data)->get(name);
+			if (mem)
+			{
+				Value val = expr->val->accept(this);
+				if (expr->op.type != TokenType::EQUAL)
+				{
+					if (val.tag == TypeTag::NUMBER && mem->tag == TypeTag::NUMBER)
+					{
+						switch (expr->op.type)
+						{
+						case TokenType::PLUS_EQUAL:
+							val.data = std::get<double>(mem->data) + std::get<double>(val.data);
+							break;
+						case TokenType::MINUS_EQUAL:
+							val.data = std::get<double>(mem->data) - std::get<double>(val.data);
+							break;
+						case TokenType::STAR_EQUAL:
+							val.data = std::get<double>(mem->data) * std::get<double>(val.data);
+							break;
+						case TokenType::SLASH_EQUAL:
+							val.data = std::get<double>(mem->data) / std::get<double>(val.data);
+							break;
+						}
+					}
+					else if (val.tag == TypeTag::STRING && mem->tag == TypeTag::STRING)
+					{
+						std::stringstream ss;
+						ss << std::get<char*>(mem->data) << std::get<char*>(val.data);
+						val.data = ss.str().c_str();
+					}
+					else
+					{
+						return runtimeTypeError(expr->op);
+					}
+				}
+				*mem = val;
+				return *mem;
+			}
+			else
+			{
+				std::cout << "[ERROR] Object does not contain the member " << name << " at line: " << expr->name.line << ".\n";
+				return Value();
+			}
+		}
+	}
+	else
+	{
+		std::cout << "[ERROR] Getter can only work on classes line: " << expr->name.line << ".\n";
+		return Value();
+	}
+}
+
+
 Value Interpreter::visit(ExprCall* expr)
 {
 	Value func = expr->callee->accept(this);

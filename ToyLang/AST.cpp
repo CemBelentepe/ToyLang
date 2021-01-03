@@ -27,6 +27,18 @@ Value ExprVariableSet::accept(ExprVisitor* visitor)
 	return visitor->visit(this);
 }
 
+Value ExprMemberGet::accept(ExprVisitor* visitor)
+{
+	return visitor->visit(this);
+}
+
+
+Value ExprMemberSet::accept(ExprVisitor* visitor)
+{
+	return visitor->visit(this);
+}
+
+
 Value ExprCall::accept(ExprVisitor* visitor)
 {
 	return visitor->visit(this);

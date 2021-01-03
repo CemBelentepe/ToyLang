@@ -242,6 +242,11 @@ std::unique_ptr<Expr> Parser::assignment()
 			Token name = ((ExprVariableGet*)expr.get())->name;
 			return std::make_unique<ExprVariableSet>(name, std::move(asgn), op);
 		}
+		else if (expr->instance == ExprType::MemberGet)
+		{
+			ExprMemberGet* get = (ExprMemberGet*)expr.get();
+			return std::make_unique<ExprMemberSet>(get->name, std::move(get->object), std::move(asgn), op);
+		}
 		else
 		{
 			return this->errorAtToken("[ERROR] Invalid assignment target");
@@ -346,20 +351,32 @@ std::unique_ptr<Expr> Parser::call()
 {
 	std::unique_ptr<Expr> expr = primary();
 
-	while (match(TokenType::OPEN_PAREN))
+	while (true)
 	{
-		std::vector<std::unique_ptr<Expr>> args;
-		std::unique_ptr<Expr> callee = std::move(expr);
-		Token paren = consumed();
-		if (peek().type != TokenType::CLOSE_PAREN)
-		{
-			do
+		if (match(TokenType::OPEN_PAREN)) {
+			std::vector<std::unique_ptr<Expr>> args;
+			std::unique_ptr<Expr> callee = std::move(expr);
+			Token paren = consumed();
+			if (peek().type != TokenType::CLOSE_PAREN)
 			{
-				args.push_back(parseExpr());
-			} while (match(TokenType::COMMA));
+				do
+				{
+					args.push_back(parseExpr());
+				} while (match(TokenType::COMMA));
+			}
+			consume(TokenType::CLOSE_PAREN, "Expect ')' after arguments.");
+			expr = std::make_unique<ExprCall>(std::move(callee), std::move(args), paren);
 		}
-		consume(TokenType::CLOSE_PAREN, "Expect ')' after arguments.");
-		expr = std::make_unique<ExprCall>(std::move(callee), std::move(args), paren);
+		else if (match(TokenType::DOT))
+		{
+			consume(TokenType::IDENTIFIER, "Expect an identifier as a member.");
+			Token mem = consumed();
+			expr = std::make_unique<ExprMemberGet>(mem, std::move(expr));
+		}
+		else
+		{
+			break;
+		}
 	}
 
 	return std::move(expr);

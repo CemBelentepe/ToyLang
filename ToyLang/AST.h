@@ -12,7 +12,7 @@ class ToyFunction;
 
 enum class ExprType
 {
-	Binary, Unary, Literal, VariableGet, VariableSet, Call
+	Binary, Unary, Literal, VariableGet, VariableSet, Call, MemberGet, MemberSet
 };
 
 class Expr
@@ -84,6 +84,34 @@ public:
 
 	ExprVariableSet(Token name, std::unique_ptr<Expr> setVal, Token op)
 		:Expr(ExprType::VariableSet), name(name), setVal(std::move(setVal)), op(op)
+	{}
+
+	Value accept(ExprVisitor* visitor) override;
+};
+
+class ExprMemberGet : public Expr
+{
+public:
+	Token name;
+	std::unique_ptr<Expr> object;
+
+	ExprMemberGet(Token name, std::unique_ptr<Expr> object)
+		: Expr(ExprType::MemberGet), name(name), object(std::move(object))
+	{}
+
+	Value accept(ExprVisitor* visitor) override;
+};
+
+class ExprMemberSet : public Expr
+{
+public:
+	Token name;
+	std::unique_ptr<Expr> object;
+	std::unique_ptr<Expr> val;
+	Token op;
+
+	ExprMemberSet(Token name, std::unique_ptr<Expr> object, std::unique_ptr<Expr> val, Token op)
+		: Expr(ExprType::MemberSet), name(name), object(std::move(object)), val(std::move(val)), op(op)
 	{}
 
 	Value accept(ExprVisitor* visitor) override;

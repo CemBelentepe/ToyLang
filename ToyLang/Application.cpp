@@ -11,7 +11,7 @@
 #include "Parser.h"
 #include "Interpreter.h"
 
-// TODO: return and struct or class
+// TODO: class
 
 void run(const char* filePath)
 {

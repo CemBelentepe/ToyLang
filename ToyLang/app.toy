@@ -5,8 +5,10 @@ class MyClass
 func main()
 {
 	var	x = MyClass();
-	println(MyClass);
-	println(x);
+	x.a = MyClass();
+	x.a.b = println;
+	println(x.a);
+	x.a.b("Hello :)");
 }
 
 func println(s)

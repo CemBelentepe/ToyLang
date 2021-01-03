@@ -79,6 +79,24 @@ public:
 		return Value();
 	}
 
+	Value visit(ExprMemberGet* expr) override
+	{
+		std::cout << "(";
+		expr->object->accept(this);
+		std::cout << "." << expr->name.getLexeme() << ")";
+		return Value();
+	}
+
+	Value visit(ExprMemberSet* expr) override
+	{
+		std::cout << "(";
+		expr->object->accept(this);
+		std::cout << "." << expr->name.getLexeme() << " ";
+		expr->val->accept(this);
+		std::cout << ")";
+		return Value();
+	}
+
 	void visit(StmtExpr* stmt) override
 	{
 		stmt->expr->accept(this);
