@@ -21,7 +21,7 @@ class Value
 public:
 	TypeTag tag;
 
-	std::variant<bool, double, char*, std::shared_ptr<Callable>, std::shared_ptr<ToyInstance>> data;
+	std::variant<void*, bool, double, std::string, std::shared_ptr<Callable>, std::shared_ptr<ToyInstance>> data;
 
 	Value();
 	Value(bool val);

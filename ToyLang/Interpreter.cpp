@@ -101,7 +101,7 @@ Value Interpreter::visit(ExprBinary* expr)
 		else if (a.tag == TypeTag::STRING && b.tag == TypeTag::STRING && expr->op.type == TokenType::PLUS)
 		{
 			std::stringstream ss;
-			ss << std::get<char*>(a.data) << std::get<char*>(b.data);
+			ss << std::get<std::string>(a.data) << std::get<std::string>(b.data);
 			return ss.str();
 		}
 	}
@@ -153,7 +153,7 @@ Value Interpreter::visit(ExprVariableSet* expr)
 		else if (val.tag == TypeTag::STRING && orig.tag == TypeTag::STRING)
 		{
 			std::stringstream ss;
-			ss << std::get<char*>(orig.data) << std::get<char*>(val.data);
+			ss << std::get<std::string>(orig.data) << std::get<std::string>(val.data);
 			val.data = ss.str().c_str();
 		}
 		else
@@ -231,7 +231,7 @@ Value Interpreter::visit(ExprMemberSet* expr)
 					else if (val.tag == TypeTag::STRING && mem.tag == TypeTag::STRING)
 					{
 						std::stringstream ss;
-						ss << std::get<char*>(mem.data) << std::get<char*>(val.data);
+						ss << std::get<std::string>(mem.data) << std::get<std::string>(val.data);
 						val.data = ss.str().c_str();
 					}
 					else

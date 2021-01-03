@@ -1,12 +1,30 @@
+class Vector
+{
+	__init__(x, y)
+	{
+		self.x = x;
+		self.y = y;
+	}
+
+	print()
+	{
+		print(str(self.x) + ", " + str(self.y));
+	}
+}
+
+
 func main()
 {
 	var arr = Array();
-	for(var i = 0; i < 10; i+=1)
-		arr.push(i);
-	arr.pop();
-	arr.set(2, 20);
+	arr.push(Vector(1, 2));
+	arr.push(Vector(3, 4));
+	arr.push(Vector(5, 6));
+
 	for(var i = 0; i < arr.size(); i+=1)
-		print(str(arr.get(i)) + " ");
+	{
+		arr.get(i).print();
+		print("\n");
+	}
 }
 
 func println(s)
