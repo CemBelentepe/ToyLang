@@ -10,21 +10,21 @@ class Vector
 	{
 		print(str(self.x) + ", " + str(self.y));
 	}
+
+	__add__(x)
+	{
+		return Vector(self.x + x.x, self.y + x.y);
+	}
 }
 
 
 func main()
 {
-	var arr = Array();
-	arr.push(Vector(1, 2));
-	arr.push(Vector(3, 4));
-	arr.push(Vector(5, 6));
-
-	for(var i = 0; i < arr.size(); i+=1)
-	{
-		arr.get(i).print();
-		print("\n");
-	}
+	var vec1 = Vector(0, 2);
+	var vec2 = Vector(3, 4);
+	var vec3 = Vector(5, 4);
+	var other = vec1 + vec2 + vec3;
+	other.print();
 }
 
 func println(s)

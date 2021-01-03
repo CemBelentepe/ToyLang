@@ -7,6 +7,7 @@
 #include "ToyClass.h"
 #include "NativeArray.hpp"
 #include "NativeFuncs.hpp"
+#include "Value.h"
 
 Value Interpreter::runtimeTypeError(Token errToken)
 {
@@ -39,7 +40,46 @@ Value Interpreter::visit(ExprBinary* expr)
 {
 	Value a = expr->lhs->accept(this);
 
-	if (expr->op.type == TokenType::EQUAL_EQUAL)
+	if (a.tag == TypeTag::INSTANCE)
+	{
+		Value b = expr->rhs->accept(this);
+		auto callMethod = [this](Value& a, Value& b, const std::string& name) {
+			Value func = std::get<std::shared_ptr<ToyInstance>>(a.data)->get(a, name);
+			if (func.tag == TypeTag::CALLABLE)
+				return std::get<std::shared_ptr<Callable>>(func.data)->call(this, { b });
+			else
+			{
+				std::cout << "Type " << std::get<std::shared_ptr<ToyInstance>>(a.data)->klass->name() << " does not have '" << name << "' method.\n";
+				return Value();
+			}
+		};
+
+		switch (expr->op.type)
+		{
+		case TokenType::PLUS:
+			return callMethod(a, b, "__add__");
+		case TokenType::MINUS:
+			return callMethod(a, b, "__sub__");
+		case TokenType::STAR:
+			return callMethod(a, b, "__mul__");
+		case TokenType::SLASH:
+			return callMethod(a, b, "__div__");
+		case TokenType::LESS:
+			return callMethod(a, b, "__les__");
+		case TokenType::GREAT:
+			return callMethod(a, b, "__grt__");
+		case TokenType::LESS_EQUAL:
+			return callMethod(a, b, "__lte__");
+		case TokenType::GREAT_EQUAL:
+			return callMethod(a, b, "__gte__");
+		case TokenType::EQUAL_EQUAL:
+			return callMethod(a, b, "__equ__");
+		case TokenType::BANG_EQUAL:
+			return callMethod(a, b, "__neq__");
+		}
+
+	}
+	else if (expr->op.type == TokenType::EQUAL_EQUAL)
 	{
 		Value b = expr->rhs->accept(this);
 		return a.data == b.data;
@@ -111,10 +151,32 @@ Value Interpreter::visit(ExprBinary* expr)
 
 Value Interpreter::visit(ExprUnary* expr)
 {
+	auto callMethod = [this](Value& a, const std::string& name) {
+		Value func = std::get<std::shared_ptr<ToyInstance>>(a.data)->get(a, name);
+		if (func.tag == TypeTag::CALLABLE)
+			return std::get<std::shared_ptr<Callable>>(func.data)->call(this, { });
+		else
+		{
+			std::cout << "Type " << std::get<std::shared_ptr<ToyInstance>>(a.data)->klass->name() << " does not have '" << name << "' method.\n";
+			return Value();
+		}
+	};
+
 	Value a = expr->rhs->accept(this);
-	if (a.tag == TypeTag::NUMBER)
+	switch (expr->op.type)
 	{
-		return -std::get<double>(a.data);
+	case TokenType::MINUS:
+		if (a.tag == TypeTag::NUMBER)
+			return -std::get<double>(a.data);
+		else if (a.tag == TypeTag::INSTANCE)
+			return callMethod(a, "__neg__");
+		break;
+	case TokenType::BANG:
+		if (a.tag == TypeTag::BOOL)
+			return !std::get<bool>(a.data);
+		else if (a.tag == TypeTag::INSTANCE)
+			return callMethod(a, "__not__");
+		break;
 	}
 
 	return runtimeTypeError(expr->op);
@@ -155,6 +217,34 @@ Value Interpreter::visit(ExprVariableSet* expr)
 			std::stringstream ss;
 			ss << std::get<std::string>(orig.data) << std::get<std::string>(val.data);
 			val.data = ss.str().c_str();
+		}
+		else if (orig.tag == TypeTag::INSTANCE)
+		{
+			auto callMethod = [this](Value& a, Value& b, const std::string& name) {
+				Value func = std::get<std::shared_ptr<ToyInstance>>(a.data)->get(a, name);
+				if (func.tag == TypeTag::CALLABLE)
+					return std::get<std::shared_ptr<Callable>>(func.data)->call(this, { b });
+				else
+				{
+					std::cout << "Type " << std::get<std::shared_ptr<ToyInstance>>(a.data)->klass->name() << " does not have '" << name << "' method.\n";
+					return Value();
+				}
+			};
+			switch (expr->op.type)
+			{
+			case TokenType::PLUS_EQUAL:
+				val = callMethod(orig, val, "__iadd__");
+				break;
+			case TokenType::MINUS_EQUAL:
+				val = callMethod(orig, val, "__isub__");
+				break;
+			case TokenType::STAR_EQUAL:
+				val = callMethod(orig, val, "__imul__");
+				break;
+			case TokenType::SLASH_EQUAL:
+				val = callMethod(orig, val, "__idiv__");
+				break;
+			}
 		}
 		else
 		{
@@ -205,7 +295,36 @@ Value Interpreter::visit(ExprMemberSet* expr)
 		{
 			auto instance = std::get<std::shared_ptr<ToyInstance>>(object.data);
 			Value mem = instance->get(instance, name);
-			if (mem.tag != TypeTag::ERR)
+			if (mem.tag == TypeTag::INSTANCE)
+			{
+				Value val = expr->val->accept(this);
+				auto callMethod = [this](Value& a, Value& b, const std::string& name) {
+					Value func = std::get<std::shared_ptr<ToyInstance>>(a.data)->get(a, name);
+					if (func.tag == TypeTag::CALLABLE)
+						return std::get<std::shared_ptr<Callable>>(func.data)->call(this, { b });
+					else
+					{
+						std::cout << "Type " << std::get<std::shared_ptr<ToyInstance>>(a.data)->klass->name() << " does not have '" << name << "' method.\n";
+						return Value();
+					}
+				};
+				switch (expr->op.type)
+				{
+				case TokenType::PLUS_EQUAL:
+					val = callMethod(mem, val, "__iadd__");
+					break;
+				case TokenType::MINUS_EQUAL:
+					val = callMethod(mem, val, "__isub__");
+					break;
+				case TokenType::STAR_EQUAL:
+					val = callMethod(mem, val, "__imul__");
+					break;
+				case TokenType::SLASH_EQUAL:
+					val = callMethod(mem, val, "__idiv__");
+					break;
+				}
+			}
+			else if (mem.tag != TypeTag::ERR)
 			{
 				Value val = expr->val->accept(this);
 				if (expr->op.type != TokenType::EQUAL)
