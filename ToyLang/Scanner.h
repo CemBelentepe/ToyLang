@@ -54,6 +54,7 @@ enum class TokenType
 	IF,
 	ELSE,
 	FUNC,
+	SELF,
 	VAR,
 	WHILE,
 	FOR,

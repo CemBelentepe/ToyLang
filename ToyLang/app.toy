@@ -1,14 +1,32 @@
-class MyClass
+class Vector
 {
+	__init__(x, y)
+	{
+		self.x = x;
+		self.y = y;
+	}
+
+	print()
+	{
+		print(self.x);
+		print(" ");
+		println(self.y);
+	}
+
+	add(vec)
+	{
+		self.x += vec.x;
+		self.y += vec.y;
+	}
 }
 
 func main()
 {
-	var	x = MyClass();
-	x.a = MyClass();
-	x.a.b = println;
-	println(x.a);
-	x.a.b("Hello :)");
+	var	vec1 = Vector(3, 5);
+	vec1.print();
+	var vec2 = Vector(6, 5);
+	vec1.add(vec2);
+	vec1.print();
 }
 
 func println(s)

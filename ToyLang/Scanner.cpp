@@ -207,6 +207,8 @@ Token Scanner::identifierLiteral(char start)
 		return makeToken(TokenType::ELSE);
 	if (lexeme.str() == "func")
 		return makeToken(TokenType::FUNC);
+	if (lexeme.str() == "self")
+		return makeToken(TokenType::SELF);
 	if (lexeme.str() == "var")
 		return makeToken(TokenType::VAR);
 	if (lexeme.str() == "while")

@@ -406,6 +406,8 @@ std::unique_ptr<Expr> Parser::primary()
 	}
 	case TokenType::IDENTIFIER:
 		return std::make_unique<ExprVariableGet>(token);
+	case TokenType::SELF:
+		return std::make_unique<ExprVariableGet>(token);
 	default:
 		return errorAtToken("Invalid identifier.");
 	}

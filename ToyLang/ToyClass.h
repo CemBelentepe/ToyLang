@@ -12,8 +12,9 @@ public:
 	std::unordered_map<std::string, Value> fields;
 	ToyInstance(ToyClass* klass);
 
-	Value* get(std::string name);
+	Value get(Value instance, std::string name);
 	void set(std::string name, Value val);
+	Value bindTo(Value instance, Callable* callable);
 };
 
 class ToyClass : public Callable
@@ -21,9 +22,10 @@ class ToyClass : public Callable
 public:
 	StmtClass* klass;
 	std::unordered_map<std::string, Value> methods;
+	Callable* init;
 
 	ToyClass(StmtClass* klass);
-	Value* getMethod(std::string name);
+	Value getMethod(std::string name);
 
 	Value call(Interpreter* interpreter, std::vector<Value> args) override;
 	int arity() override;

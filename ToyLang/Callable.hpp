@@ -19,6 +19,7 @@ class ToyFunction : public Callable
 {
 public:
 	StmtFunction* func;
+	Value self;
 
 	ToyFunction(StmtFunction* func)
 		: func(func) {}
@@ -27,6 +28,7 @@ public:
 	{
 		Enviroment* env = interpreter->enviroment;
 		interpreter->enviroment = new Enviroment(interpreter->globals);
+		interpreter->enviroment->define("self", self);
 		for (size_t i = 0; i < args.size(); i++)
 		{
 			interpreter->enviroment->define(func->params[i], args[i]);
@@ -46,7 +48,7 @@ public:
 		delete interpreter->enviroment;
 		interpreter->enviroment = env;
 
-		return ret; // add return here!
+		return ret;
 	}
 
 	int arity() override
@@ -57,6 +59,11 @@ public:
 	std::string name() override
 	{
 		return func->name.getLexeme();
+	}
+
+	void bind(Value self)
+	{
+		this->self = self;
 	}
 };
 
