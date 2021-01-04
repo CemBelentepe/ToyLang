@@ -25,14 +25,15 @@ void Interpreter::run()
 	enviroment = globals;
 
 	enviroment->define("print", Value(std::make_shared<NativePrint>()));
+	enviroment->define("input", Value(std::make_shared<NativeInput>()));
 	enviroment->define("clock", Value(std::make_shared<NativeClock>()));
 	enviroment->define("str", Value(std::make_shared<NativeStr>()));
 	enviroment->define("Array", Value(std::make_shared<NativeArray>()));
 
-	for (auto& stmt : root)
-		stmt->accept(this);
 	try
 	{
+		for (auto& stmt : root)
+			stmt->accept(this);
 		std::get<std::shared_ptr<Callable>>(enviroment->getVar("main").data)->call(this, {});
 	}
 	catch (std::string err)

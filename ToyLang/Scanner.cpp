@@ -281,7 +281,7 @@ void Scanner::skipWhitespace()
 				this->currentPosition += 2;
 				skipWhitespace();
 			}
-			break;
+			return;
 		default:
 			return;
 		}

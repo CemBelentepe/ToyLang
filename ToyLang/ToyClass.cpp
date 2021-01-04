@@ -41,7 +41,15 @@ ToyClass::ToyClass(std::string m_name, const std::vector<std::unique_ptr<StmtFun
 	for (auto& m : stmt_methods)
 	{
 		std::shared_ptr<Callable> method = std::make_shared<ToyFunction>(m.get());
-		methods[m->name.getLexeme()] = Value(method);
+		std::string name = m->name.getLexeme();
+		if (methods.find(name) == methods.end())
+			methods[name] = Value(method);
+		else
+		{
+			std::stringstream line;
+			line << "[ERROR] Member with name '" << name << "' is already inside the class '" << m_name << "' at line " << m->name.line << "\n";
+			throw line.str();
+		}
 	}
 
 	auto it = methods.find("__init__");

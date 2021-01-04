@@ -1,5 +1,5 @@
 <NotepadPlus>
-    <UserLang name="ToyLang" ext="" udlVersion="2.1">
+    <UserLang name="ToyLang" ext=".toy" udlVersion="2.1">
         <Settings>
             <Global caseIgnored="no" allowFoldOfComments="no" foldCompact="no" forcePureLC="0" decimalSeparator="0" />
             <Prefix Keywords1="no" Keywords2="no" Keywords3="no" Keywords4="no" Keywords5="no" Keywords6="no" Keywords7="no" Keywords8="no" />
@@ -25,7 +25,7 @@
             <Keywords name="Folders in comment, middle"></Keywords>
             <Keywords name="Folders in comment, close">*/</Keywords>
             <Keywords name="Keywords1">class func var</Keywords>
-            <Keywords name="Keywords2">if while for</Keywords>
+            <Keywords name="Keywords2">if else while for</Keywords>
             <Keywords name="Keywords3">__init__ __add__ __sub__ __mul__ __div__ __les__ __grt__ __lte__ __gte__ __equ__ __neq__ __neg__ __not__ __iadd__ __isub__ __imul__ __idiv__ __iget__ __iset__</Keywords>
             <Keywords name="Keywords4">return</Keywords>
             <Keywords name="Keywords5">self</Keywords>

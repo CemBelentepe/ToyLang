@@ -1,57 +1,110 @@
-class Vector
+class Point
 {
 	__init__(x, y)
 	{
 		self.x = x;
 		self.y = y;
 	}
+}
 
-	__imul__(k)
+class MaybeNum
+{
+	__init__()
 	{
-		self.x *= k;
-		self.y *= k;
-		return self;
+		self.is_set = false;
 	}
+}
 
-	println()
+class Function
+{
+	__init__(points)
 	{
-		println(str(self.x) + ", " + str(self.y));
-	}
-
-	__iget__(index)
-	{
-		if(index == 0)
-			return self.x;
-		else if(index == 1)
-			return self.y;
-		else 
-			return 0;
+		self.points = points;
+		self.order = self.points.size();
+		self.newtonInterpolate();
 	}
 	
-	__iset__(index, val)
+	print() {
+		for (var i = 0; i < self.order; i+=1)
+		{
+			if (self.coefs[i] != 0) 
+			{
+				if (self.coefs[i] > 0 && i > 0)
+					print("+");
+				print(self.coefs[i]);
+				for (var j = 0; j < i; j+=1)
+				{
+					var x = self.points[j].x;
+					print("(x ");
+					if(x > 0) print("- " + str(x) + ")");
+					else print("+" + str(-x) + ")");
+				}
+			}
+		}
+		println("");
+	}
+
+	newtonInterpolate() {
+		var cache = Array();
+		for(var i = 0; i < self.order; i+=1)
+		{
+			cache.push(Array());
+			for(var j = 0; j < self.order - i; j+=1)
+				cache[i].push(MaybeNum());
+		}
+		
+		self.calculateDivDif(cache, 0, self.order - 1);
+		self.coefs = Array();
+		for(var i = 0; i < self.order; i+=1)
+			self.coefs.push(cache[i][0].val);
+	}
+
+	calculateDivDif(cache, begin, end)
 	{
-		if(index == 0)
-			return self.x = val;
-		else if(index == 1)
-			return self.y = val;
-		else 
-			return 0;
+		var col = end - begin;
+		var row = begin;
+		if(!cache[col][row].is_set)
+		{
+			cache[col][row].is_set = true;
+			if(begin == end)
+				cache[col][row].val = self.points[begin].y;
+			else
+			{
+				cache[col][row].val = (self.calculateDivDif(cache, begin, end-1) - self.calculateDivDif(cache, begin+1, end)) / (self.points[begin].x - self.points[end].x);
+			}
+		}
+		return cache[col][row].val;
+	}
+	
+	__iget__(x)
+	{
+		var sum = 0;
+		for(var i = 0; i < self.order; i+=1)
+		{
+			var coef = self.coefs[i];
+			
+			for(var j = 0; j < i; j+=1)
+				coef *= x - self.points[j].x;
+			
+			sum += coef;
+		}
+		return sum;
 	}
 }
 
 func main()
 {
-	var arr = Array();
-	for(var i = 0; i < 10; i+=1)
-		arr.push(Vector(i, i));
-	for(var i = 0; i < 10; i+=1)
-		arr[i] *= 2;
+	var points = Array();
+	points.push(Point(1, 3));
+	points.push(Point(2, 6));
+	points.push(Point(3, 19));
+	points.push(Point(5, 99));
+	points.push(Point(7, 291));
 	
-		
-	for(var i = 0; i < 10; i+=1)
-	{
-		arr[i].println();
-	}
+	var f = Function(points);
+	f.print();
+	println(f[2.5]);
+	println(f[4]);
 }
 
 func println(s)

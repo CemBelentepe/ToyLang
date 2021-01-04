@@ -21,6 +21,27 @@ public:
 	}
 };
 
+class NativeInput : public Callable
+{
+public:
+	Value call(Interpreter* interpreter, std::vector<Value> args) override
+	{
+		std::string line;
+		std::getline(std::cin, line);
+		return Value(line);
+	}
+
+	int arity()
+	{
+		return 0;
+	}
+
+	std::string name() override
+	{
+		return "input";
+	}
+};
+
 class NativeClock : public Callable
 {
 public:

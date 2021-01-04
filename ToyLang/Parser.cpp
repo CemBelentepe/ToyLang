@@ -12,7 +12,14 @@ std::vector<std::unique_ptr<Stmt>> Parser::parse()
 
 	while (!match(TokenType::EOF_TOKEN))
 	{
-		root.push_back(std::move(decleration()));
+		try
+		{
+			root.push_back(std::move(decleration()));
+		}
+		catch (bool err)
+		{
+			hadError = true;
+		}
 	}
 
 	return root;
@@ -464,4 +471,5 @@ void Parser::panic()
 
 		type = advance().type;
 	}
+	throw true;
 }
