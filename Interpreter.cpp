@@ -1,5 +1,8 @@
 #include "Interpreter.h"
 #include <iostream>
+#include <string>
+#include <sstream>
+#include <variant>
 
 #include "Enviroment.hpp"
 #include "Callable.hpp"
@@ -246,7 +249,7 @@ Value Interpreter::visit(ExprVariableSet* expr)
 		{
 			std::stringstream ss;
 			ss << std::get<std::string>(orig.data) << std::get<std::string>(val.data);
-			val.data = ss.str().c_str();
+			val.data = ss.str();
 		}
 		else if (orig.tag == TypeTag::INSTANCE)
 		{
@@ -405,7 +408,7 @@ Value Interpreter::visit(ExprMemberSet* expr)
 					{
 						std::stringstream ss;
 						ss << std::get<std::string>(mem.data) << std::get<std::string>(val.data);
-						val.data = ss.str().c_str();
+						val.data = ss.str();
 					}
 					else
 					{
@@ -545,7 +548,7 @@ Value Interpreter::visit(ExprArraySet* expr)
 						{
 							std::stringstream ss;
 							ss << std::get<std::string>(getted.data) << std::get<std::string>(val.data);
-							val.data = ss.str().c_str();
+							val.data = ss.str();
 						}
 						else
 						{

@@ -10,7 +10,7 @@ public:
 		return Value();
 	}
 
-	int arity()
+	int arity() override
 	{
 		return 1;
 	}
@@ -31,7 +31,7 @@ public:
 		return Value(line);
 	}
 
-	int arity()
+	int arity() override
 	{
 		return 0;
 	}
@@ -50,7 +50,7 @@ public:
 		return (double)clock() / CLOCKS_PER_SEC;
 	}
 
-	int arity()
+	int arity() override
 	{
 		return 0;
 	}
@@ -69,7 +69,7 @@ public:
 		return Value(args[0].toString());
 	}
 
-	int arity()
+	int arity() override
 	{
 		return 1;
 	}

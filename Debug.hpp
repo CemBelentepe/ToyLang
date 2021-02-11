@@ -190,7 +190,7 @@ public:
 		std::cout << "\n";
 	}
 
-	void visit(StmtClass* stmt)
+	void visit(StmtClass* stmt) override
 	{
 		std::cout << "CLASS " << stmt->name.getLexeme() << "\n";
 		for (auto& mem : stmt->methods)

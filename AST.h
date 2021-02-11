@@ -22,6 +22,7 @@ public:
 	Expr(ExprType instance)
 		: instance(instance) {}
 	virtual Value accept(ExprVisitor* visitor) = 0;
+	virtual ~Expr(){}
 };
 
 class ExprBinary : public Expr

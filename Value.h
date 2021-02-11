@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <variant>
+#include <memory>
 
 class Callable;
 class ToyClass;
